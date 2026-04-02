@@ -1,0 +1,59 @@
+[
+  {
+    "id": 1,
+    "name": "Ryan Roslansky",
+    "img": "/images/story-1.jpeg",
+    "userImg": "/user/user-1.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Ryan Roslansky",
+    "img": "/images/story-2.jpeg",
+    "userImg": "/user/user-2.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Ryan Roslansky",
+    "img": "/images/story-3.jpeg",
+    "userImg": "/user/user-3.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Ryan Roslansky",
+    "img": "/images/story-4.jpeg",
+    "userImg": "/user/user-4.jpg"
+  },
+
+  {
+    "id": 5,
+    "name": "Ryan Roslansky",
+    "img": "/images/story-5.jpeg",
+    "userImg": "/user/user-5.jpg"
+  },
+
+  {
+    "id": 6,
+    "name": "Ryan Roslansky",
+    "img": "/images/story-6.jpeg",
+    "userImg": "/user/user-6.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Ryan Roslansky",
+    "img": "/images/story-7.jpeg",
+    "userImg": "/user/user-7.jpg"
+  },
+  {
+    "id": 8,
+    "name": "Ryan Roslansky",
+    "img": "/images/story-8.jpeg",
+    "userImg": "/user/user-8.jpg"
+  },
+
+  {
+    "id": 9,
+    "name": "Ryan Roslansky",
+    "img": "/images/story-9.jpeg",
+    "userImg": "/user/user-9.jpg"
+  }
+]
