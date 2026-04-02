@@ -1,0 +1,80 @@
+[
+  {
+    "id": 1,
+    "user": {
+      "name": "Karim Saif",
+      "avatar": "/images/user-1.jpg"
+    },
+    "time": "5 minute ago",
+    "visibility": "Public",
+    "content": "-Healthy Tracking App",
+    "image": "/images/post-image.jpg",
+    "likes": 9,
+    "commentsCount": 12,
+    "shares": 122,
+    "comments": [
+      {
+        "id": 1,
+        "user": {
+          "name": "Radovan SkillArena",
+          "avatar": "/images/user-2.jpg"
+        },
+        "text": "It is a long established fact that a reader will be distracted by the readable content.",
+        "likes": 198,
+        "time": "21m"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "user": {
+      "name": "Karim Saif",
+      "avatar": "/images/user-1.jpg"
+    },
+    "time": "5 minute ago",
+    "visibility": "Public",
+    "content": "-Healthy Tracking App",
+    "image": "/images/post-image.jpg",
+    "likes": 9,
+    "commentsCount": 12,
+    "shares": 122,
+    "comments": [
+      {
+        "id": 1,
+        "user": {
+          "name": "Radovan SkillArena",
+          "avatar": "/images/user-2.jpg"
+        },
+        "text": "It is a long established fact that a reader will be distracted by the readable content.",
+        "likes": 198,
+        "time": "21m"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "user": {
+      "name": "Karim Saif",
+      "avatar": "/images/user-1.jpg"
+    },
+    "time": "5 minute ago",
+    "visibility": "Public",
+    "content": "-Healthy Tracking App",
+    "image": "/images/post-image.jpg",
+    "likes": 9,
+    "commentsCount": 12,
+    "shares": 122,
+    "comments": [
+      {
+        "id": 1,
+        "user": {
+          "name": "Radovan SkillArena",
+          "avatar": "/images/user-2.jpg"
+        },
+        "text": "It is a long established fact that a reader will be distracted by the readable content.",
+        "likes": 198,
+        "time": "21m"
+      }
+    ]
+  }
+]
