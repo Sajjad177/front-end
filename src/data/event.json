@@ -15,7 +15,7 @@
     "description": "Plant more trees and save our planet",
     "peopleGoing": 25,
     "status": "Going",
-    "image": "/images/story-1.jpeg"
+    "image": "/images/story-3.jpeg"
   },
   {
     "id": 3,
@@ -24,6 +24,6 @@
     "description": "Join us for a developer event",
     "peopleGoing": 40,
     "status": "Going",
-    "image": "/images/story-1.jpeg"
+    "image": "/images/story-4.jpeg"
   }
 ]

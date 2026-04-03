@@ -23,7 +23,7 @@ const PostedFeed = () => {
       {postData.map((post: any) => (
         <div
           key={post.id}
-          className="bg-white rounded-xl shadow-sm border border-gray-100 w-full overflow-hidden"
+          className="bg-white rounded-sm border border-gray-100 w-full overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4">
