@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { usePost } from "@/hooks/usepost";
 import {
   Calendar,
   FileText,
@@ -10,26 +12,27 @@ import {
   Video,
   X,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import userImg from "../../../public/user/img.webp";
 import { Switch } from "../ui/switch";
 
-type PreviewImage = {
-  file: File;
-  preview: string;
-  id: string;
-};
-
+type PreviewImage = { file: File; preview: string; id: string };
 const MAX_IMAGES = 5;
 
 const PostBox = () => {
+  const { data } = useSession();
+  const token = data?.accessToken;
+  const [isPublic, setIsPublic] = useState(true);
   const [selectedImages, setSelectedImages] = useState<PreviewImage[]>([]);
+  const [text, setText] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const postMutation = usePost(); // react-query mutation
 
   const processFiles = (files: File[]) => {
     const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-
     const remainingSlots = MAX_IMAGES - selectedImages.length;
 
     if (remainingSlots <= 0) {
@@ -65,21 +68,41 @@ const PostBox = () => {
   const removeImage = (idToRemove: string) => {
     setSelectedImages((prev) => {
       const filtered = prev.filter((img) => img.id !== idToRemove);
-
       const removedImg = prev.find((img) => img.id === idToRemove);
       if (removedImg) URL.revokeObjectURL(removedImg.preview);
-
       return filtered;
     });
-
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handlePost = async () => {
+    if (!text.trim() && selectedImages.length === 0) {
+      toast.error("Please add text or images before posting.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("text", text);
+    formData.append("visibility", isPublic ? "public" : "private");
+    selectedImages.forEach((img) => formData.append("images", img.file));
+
+    postMutation.mutate({ formData, token }, {
+      onSuccess: () => {
+        toast.success("Post created successfully!");
+        setText("");
+        setSelectedImages([]);
+      },
+      onError: (err: any) => {
+        toast.error(err?.message || "Failed to create post.");
+      },
+    });
   };
 
   return (
     <div
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      className="bg-white rounded-md p-4 w-full shadow-sm border border-gray-100"
+      className="bg-white rounded-sm p-4 w-full"
     >
       <div className="flex items-start gap-3 mb-4">
         <Avatar className="h-10 w-10 border shrink-0">
@@ -92,6 +115,8 @@ const PostBox = () => {
             <input
               type="text"
               placeholder="Write something ..."
+              value={text}
+              onChange={(e) => setText(e.target.value)}
               className="w-full bg-transparent py-2 text-[18px] text-gray-600 focus:outline-none placeholder:text-gray-400"
             />
             <div className="flex flex-col items-center justify-center text-gray-400">
@@ -100,7 +125,6 @@ const PostBox = () => {
             </div>
           </div>
 
-          {/* Preview */}
           {selectedImages.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-3">
               {selectedImages.map((image) => (
@@ -167,13 +191,20 @@ const PostBox = () => {
 
           <div className="flex items-center gap-2 pl-4">
             <span className="lg:flex hidden text-[13px] font-medium text-gray-600">
-              Public
+              {isPublic ? "Public" : "Private"}
             </span>
-            <Switch className="data-[state=checked]:bg-blue-600" />
+            <Switch
+              checked={isPublic}
+              onCheckedChange={setIsPublic}
+              className="data-[state=checked]:bg-blue-600 cursor-pointer data-[state=unchecked]:bg-gray-200"
+            />
           </div>
         </div>
 
-        <button className="bg-[#007AFF] text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold text-sm hover:bg-blue-600 transition-all shadow-md shadow-blue-100">
+        <button
+          onClick={handlePost}
+          className="bg-[#007AFF] text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold text-sm hover:bg-blue-600 transition-all cursor-pointer"
+        >
           <Send className="w-4 h-4 rotate-[-45deg] mb-1" />
           Post
         </button>
