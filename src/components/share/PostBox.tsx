@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Calendar,
@@ -6,59 +8,172 @@ import {
   Pencil,
   Send,
   Video,
+  X,
 } from "lucide-react";
-
+import { ChangeEvent, DragEvent, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import userImg from "../../../public/user/img.webp";
+import { Switch } from "../ui/switch";
+
+type PreviewImage = {
+  file: File;
+  preview: string;
+  id: string;
+};
+
+const MAX_IMAGES = 5;
 
 const PostBox = () => {
+  const [selectedImages, setSelectedImages] = useState<PreviewImage[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const processFiles = (files: File[]) => {
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+    const remainingSlots = MAX_IMAGES - selectedImages.length;
+
+    if (remainingSlots <= 0) {
+      toast.error(`You can upload a maximum of ${MAX_IMAGES} images.`);
+      return;
+    }
+
+    const limitedFiles = imageFiles.slice(0, remainingSlots);
+    const newImages: PreviewImage[] = limitedFiles.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+      id: Math.random().toString(36).substring(7),
+    }));
+
+    setSelectedImages((prev) => [...prev, ...newImages]);
+  };
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    processFiles(Array.from(e.target.files));
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    processFiles(Array.from(e.dataTransfer.files));
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const removeImage = (idToRemove: string) => {
+    setSelectedImages((prev) => {
+      const filtered = prev.filter((img) => img.id !== idToRemove);
+
+      const removedImg = prev.find((img) => img.id === idToRemove);
+      if (removedImg) URL.revokeObjectURL(removedImg.preview);
+
+      return filtered;
+    });
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   return (
-    <div className="bg-white rounded-md p-4 w-full">
-      {/* Input Area */}
-      <div className="flex items-center gap-3 mb-4">
-        <Avatar className="h-10 w-10 border">
+    <div
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      className="bg-white rounded-md p-4 w-full shadow-sm border border-gray-100"
+    >
+      <div className="flex items-start gap-3 mb-4">
+        <Avatar className="h-10 w-10 border shrink-0">
           <AvatarImage src={userImg.src} />
           <AvatarFallback>DF</AvatarFallback>
         </Avatar>
-        <div className="flex-1 relative group">
-          <input
-            type="text"
-            placeholder="Write something ..."
-            className="w-full bg-transparent py-2 pr-10 text-[15px] focus:outline-none placeholder:text-gray-400"
-          />
-          <button className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-            <Pencil className="w-5 h-5" />
-          </button>
+
+        <div className="flex-1">
+          <div className="flex items-center">
+            <input
+              type="text"
+              placeholder="Write something ..."
+              className="w-full bg-transparent py-2 text-[18px] text-gray-600 focus:outline-none placeholder:text-gray-400"
+            />
+            <div className="flex flex-col items-center justify-center text-gray-400">
+              <Pencil className="w-5 h-5" />
+              <div className="w-4 h-[2px] bg-gray-300 mt-[-2px]" />
+            </div>
+          </div>
+
+          {/* Preview */}
+          {selectedImages.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {selectedImages.map((image) => (
+                <div key={image.id} className="relative inline-block group">
+                  <img
+                    src={image.preview}
+                    alt="Preview"
+                    className="h-24 w-24 rounded-lg object-cover border border-gray-200"
+                  />
+                  <button
+                    onClick={() => removeImage(image.id)}
+                    className="absolute -top-1 -right-1 bg-gray-900/80 text-white p-0.5 rounded-full hover:bg-red-500 transition-colors shadow-lg cursor-pointer"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Action Buttons Section */}
       <div className="bg-[#F8FAFC] rounded-lg p-2 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-1 sm:gap-4 overflow-x-auto no-scrollbar">
-          <button className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200/50 rounded-md transition-colors whitespace-nowrap">
+        <div className="flex items-center sm:gap-4">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+          />
+
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200/50 rounded-md transition-colors cursor-pointer"
+          >
             <ImageIcon className="w-5 h-5 text-gray-500" />
-            <span className="text-[13px] font-medium text-gray-600">Photo</span>
+            <span className="lg:flex hidden text-[13px] font-medium text-gray-600">
+              Photo
+            </span>
           </button>
 
-          <button className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200/50 rounded-md transition-colors whitespace-nowrap">
+          <button className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200/50 rounded-md transition-colors cursor-pointer">
             <Video className="w-5 h-5 text-gray-500" />
-            <span className="text-[13px] font-medium text-gray-600">Video</span>
+            <span className="lg:flex hidden text-[13px] font-medium text-gray-600">
+              Video
+            </span>
           </button>
 
-          <button className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200/50 rounded-md transition-colors whitespace-nowrap">
+          <button className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200/50 rounded-md transition-colors cursor-pointer">
             <Calendar className="w-5 h-5 text-gray-500" />
-            <span className="text-[13px] font-medium text-gray-600">Event</span>
+            <span className="lg:flex hidden text-[13px] font-medium text-gray-600">
+              Event
+            </span>
           </button>
 
-          <button className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200/50 rounded-md transition-colors whitespace-nowrap">
+          <button className="flex items-center gap-2 px-3 py-2 hover:bg-gray-200/50 rounded-md transition-colors cursor-pointer">
             <FileText className="w-5 h-5 text-gray-500" />
-            <span className="text-[13px] font-medium text-gray-600">
+            <span className="lg:flex hidden text-[13px] font-medium text-gray-600">
               Article
             </span>
           </button>
+
+          <div className="flex items-center gap-2 pl-4">
+            <span className="lg:flex hidden text-[13px] font-medium text-gray-600">
+              Public
+            </span>
+            <Switch className="data-[state=checked]:bg-blue-600" />
+          </div>
         </div>
 
-        {/* Post Button */}
-        <button className="bg-[#007AFF] text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold text-sm hover:bg-blue-600 transition-all shadow-md shadow-blue-100 ml-auto">
+        <button className="bg-[#007AFF] text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold text-sm hover:bg-blue-600 transition-all shadow-md shadow-blue-100">
           <Send className="w-4 h-4 rotate-[-45deg] mb-1" />
           Post
         </button>
