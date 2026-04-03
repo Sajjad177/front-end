@@ -13,7 +13,7 @@ import {
   Search,
   Users,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import userImg from "../../../public/user/img.webp";
 import {
   DropdownMenu,
@@ -23,6 +23,9 @@ import {
 } from "../ui/dropdown-menu";
 
 const Navbar = () => {
+  const { data } = useSession();
+  const user = data?.user;
+
   const handleLogout = async () => {
     await signOut({
       callbackUrl: "/login",
@@ -83,10 +86,10 @@ const Navbar = () => {
                 <div className="hidden lg:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity outline-none">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={userImg.src} />
-                    <AvatarFallback>DF</AvatarFallback>
+                    <AvatarFallback>{user?.firstName?.charAt(0) || 'U'}</AvatarFallback>
                   </Avatar>
                   <span className="text-sm font-semibold text-gray-800">
-                    Dylan Field
+                    {user?.firstName} {user?.lastName}
                   </span>
                   <ChevronDown className="h-4 w-4 text-gray-400" />
                 </div>

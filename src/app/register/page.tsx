@@ -1,8 +1,102 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
+import { useRegister } from "@/hooks/useAuth";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import registerImage from "../../../public/images/register.png";
 
 const Register = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+  const [agree, setAgree] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [errors, setErrors] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    repeatPassword: "",
+    agree: "",
+  });
+
+  // ✅ FIXED
+  const registerMutation = useRegister();
+  const router = useRouter();
+
+  const handleRegister = async () => {
+    const newErrors = {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      repeatPassword: "",
+      agree: "",
+    };
+
+    // validation
+    if (!firstName) newErrors.firstName = "First name is required";
+    if (!lastName) newErrors.lastName = "Last name is required";
+    if (!email) newErrors.email = "Email is required";
+    if (!password) newErrors.password = "Password is required";
+    if (password !== repeatPassword) {
+      newErrors.repeatPassword = "Passwords do not match";
+    }
+    if (!agree) {
+      newErrors.agree = "You must agree to terms and conditions";
+    }
+
+    setErrors(newErrors);
+
+    if (
+      newErrors.firstName ||
+      newErrors.lastName ||
+      newErrors.email ||
+      newErrors.password ||
+      newErrors.repeatPassword ||
+      newErrors.agree
+    ) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    registerMutation.mutate(
+      { firstName, lastName, email, password },
+      {
+        onSuccess: (res: any) => {
+          setIsLoading(false);
+
+          const token = res?.data?.accessToken;
+
+          if (!token) {
+            toast.error("Failed to get verification token");
+            return;
+          }
+
+          toast.success("Account created successfully!");
+          router.push("/");
+        },
+        onError: (error: any) => {
+          setIsLoading(false);
+
+          console.error("Error registering user:", error);
+
+          toast.error(
+            error.message || "Registration failed. Please try again.",
+          );
+        },
+      },
+    );
+  };
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 relative overflow-hidden bg-[#F3F5F7]">
       <div className="absolute inset-0 z-0">
@@ -50,7 +144,10 @@ const Register = () => {
             </h1>
           </div>
 
-          <button className="w-full flex items-center justify-center gap-3 border border-gray-100 py-2.5 sm:py-3 rounded-md hover:bg-gray-50 transition-all mb-5 sm:mb-6 active:scale-95">
+          <button
+            type="button"
+            className="w-full flex items-center justify-center gap-3 border border-gray-100 py-2.5 sm:py-3 rounded-md hover:bg-gray-50 transition-all mb-5 sm:mb-6 active:scale-95"
+          >
             <Image
               src="/images/google.webp"
               alt="Google"
@@ -69,62 +166,116 @@ const Register = () => {
           </div>
 
           <form className="space-y-4 sm:space-y-5">
-            <div>
-              <label className="block text-gray-700 text-xs sm:text-sm font-bold mb-1.5 ml-1">
-                Email
-              </label>
+            <label
+              htmlFor="firstName"
+              className="block text-gray-600 font-medium text-sm sm:text-[15px]"
+            >
+              First Name
+            </label>
+            <input
+              type="text"
+              placeholder="John"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-100"
+            />
+            {errors.firstName && (
+              <p className="text-red-500 text-xs">{errors.firstName}</p>
+            )}
+
+            <label
+              htmlFor="lastName"
+              className="block text-gray-600 font-medium text-sm sm:text-[15px]"
+            >
+              Last Name
+            </label>
+            <input
+              type="text"
+              placeholder="Doe"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-100"
+            />
+            {errors.lastName && (
+              <p className="text-red-500 text-xs">{errors.lastName}</p>
+            )}
+
+            <label
+              htmlFor="email"
+              className="block text-gray-600 font-medium text-sm sm:text-[15px]"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              placeholder="name@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-100"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs">{errors.email}</p>
+            )}
+
+            <label
+              htmlFor="password"
+              className="block text-gray-600 font-medium text-sm sm:text-[15px]"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-100"
+            />
+            {errors.password && (
+              <p className="text-red-500 text-xs">{errors.password}</p>
+            )}
+
+            <label
+              htmlFor="email"
+              className="block text-gray-600 font-medium text-sm sm:text-[15px]"
+            >
+              Repeat Password
+            </label>
+            <input
+              type="password"
+              placeholder="Repeat password"
+              value={repeatPassword}
+              onChange={(e) => setRepeatPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-100"
+            />
+            {errors.repeatPassword && (
+              <p className="text-red-500 text-xs">{errors.repeatPassword}</p>
+            )}
+
+            <label className="flex items-center gap-2 text-sm">
               <input
-                type="email"
-                placeholder="name@company.com"
-                className="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-100 bg-white/50 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF] transition-all text-sm"
+                type="checkbox"
+                checked={agree}
+                onChange={(e) => setAgree(e.target.checked)}
               />
-            </div>
+              I agree to terms
+            </label>
+            {errors.agree && (
+              <p className="text-red-500 text-xs">{errors.agree}</p>
+            )}
 
-            <div>
-              <label className="block text-gray-700 text-xs sm:text-sm font-bold mb-1.5 ml-1">
-                Password
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-100 bg-white/50 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF] transition-all text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 text-xs sm:text-sm font-bold mb-1.5 ml-1">
-                Repeat Password
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-100 bg-white/50 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF] transition-all text-sm"
-              />
-            </div>
-
-            <div className="flex items-center text-xs sm:text-sm">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300 text-[#007AFF] focus:ring-[#007AFF]"
-                />
-                <span className="text-gray-500 group-hover:text-gray-900 transition-colors font-medium">
-                  I agree to terms & conditions
-                </span>
-              </label>
-            </div>
-
-            <button className="w-full bg-[#007AFF] text-white py-3.5 sm:py-4 rounded-md font-bold text-sm sm:text-[16px] hover:bg-blue-600 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer mt-4">
-              Register now
+            <button
+              type="button" // ✅ important fix
+              onClick={handleRegister}
+              disabled={isLoading}
+              className="w-full bg-[#007AFF] text-white py-3 rounded-md font-bold"
+            >
+              {isLoading ? "Registering..." : "Register now"}
             </button>
           </form>
 
-          <p className="text-center text-xs sm:text-sm text-gray-500 mt-6 sm:mt-8">
+          <p className="text-center text-sm text-gray-500 mt-6">
             Already have an account?{" "}
-            <Link
-              href="/login"
-              className="text-[#007AFF] font-extrabold hover:underline"
-            >
+            <Link href="/login" className="text-[#007AFF] font-bold">
               Login now
             </Link>
           </p>

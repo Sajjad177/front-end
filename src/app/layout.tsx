@@ -1,4 +1,5 @@
 import Provider from "@/providers/Providers";
+import QueryProvider from "@/providers/QueryProvider";
 import type { Metadata } from "next";
 import { Roboto_Condensed } from "next/font/google";
 import { Toaster } from "react-hot-toast";
@@ -23,8 +24,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${robotoCondensed.variable}  font-sans antialiased`}>
-        <Provider>{children}</Provider>
-        <Toaster position="top-center" reverseOrder={false} />
+        <QueryProvider>
+          <Provider>{children}</Provider>
+          <Toaster position="top-center" reverseOrder={false} />
+        </QueryProvider>
       </body>
     </html>
   );

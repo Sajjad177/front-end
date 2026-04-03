@@ -189,7 +189,7 @@ const Login = () => {
           <p className="text-center text-xs sm:text-sm text-gray-500 mt-6 sm:mt-8">
             New here?{" "}
             <Link
-              href="/signup"
+              href="/register"
               className="text-[#007AFF] font-extrabold hover:underline"
             >
               Create Account
