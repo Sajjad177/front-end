@@ -1,8 +1,65 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
+import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import loginImage from "../../../public/images/login.png";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
+
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleLogin = async () => {
+    const newErrors = {
+      email: "",
+      password: "",
+    };
+
+    if (!email) {
+      newErrors.email = "Email is required";
+    }
+    if (!password) {
+      newErrors.password = "Password is required";
+    }
+
+    setErrors(newErrors);
+
+    if (newErrors.email || newErrors.password) return;
+    setIsLoading(true);
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.ok) {
+        toast.success("Logged in successfully!");
+        router.push("/");
+      } else {
+        toast.error(result?.error || "Login failed. Please try again.");
+      }
+    } catch (error: any) {
+      toast.error(
+        error.message || "An unexpected error occurred. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 relative overflow-hidden bg-[#F3F5F7]">
       {/* --- Full Background Image --- */}
@@ -77,8 +134,13 @@ const Login = () => {
               <input
                 type="email"
                 placeholder="name@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-100 bg-white/50 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF] transition-all text-sm"
               />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              )}
             </div>
             <div>
               <label className="block text-gray-700 text-xs sm:text-sm font-bold mb-1.5 ml-1">
@@ -87,8 +149,13 @@ const Login = () => {
               <input
                 type="password"
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-2.5 sm:py-3 rounded-xl border border-gray-100 bg-white/50 focus:outline-none focus:ring-2 focus:ring-[#007AFF]/20 focus:border-[#007AFF] transition-all text-sm"
               />
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+              )}
             </div>
 
             <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -109,8 +176,13 @@ const Login = () => {
               </button>
             </div>
 
-            <button className="w-full bg-[#007AFF] text-white py-3.5 sm:py-4 rounded-md font-bold text-sm sm:text-[16px] hover:bg-blue-600 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer mt-4">
-              Login now
+            <button
+              type="button"
+              onClick={handleLogin}
+              disabled={isLoading}
+              className="w-full bg-[#007AFF] text-white py-3.5 sm:py-4 rounded-md font-bold text-sm sm:text-[16px] hover:bg-blue-600 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer mt-4"
+            >
+              {isLoading ? "Logging in..." : "Login now"}
             </button>
           </form>
 
