@@ -2,8 +2,17 @@ import Feed from "@/components/modules/Feed";
 import Navbar from "@/components/modules/Navbar";
 import SidebarLeft from "@/components/modules/SidebarLeft";
 import SidebarRight from "@/components/modules/SidebarRight";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 
-const MainPage = () => {
+const MainPage = async () => {
+  const session = await getServerSession(authOptions);
+
+  if (!session) {
+    redirect("/login");
+  }
+
   return (
     <div className="min-h-screen bg-[#F3F5F7]">
       <Navbar />

@@ -1,17 +1,34 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import {
   Bell,
   ChevronDown,
+  FileText,
   Home,
+  LogOut,
   Menu,
   MessageCircle,
   Search,
   Users,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 import userImg from "../../../public/user/img.webp";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const Navbar = () => {
+  const handleLogout = async () => {
+    await signOut({
+      callbackUrl: "/login",
+    });
+  };
+
   return (
     <>
       <header className="w-full bg-white border-b sticky top-0 z-50 h-16 md:h-20 flex items-center">
@@ -61,16 +78,35 @@ const Navbar = () => {
 
             <Search className="h-6 w-6 text-gray-500 md:hidden cursor-pointer" />
 
-            <div className="hidden lg:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={userImg.src} />
-                <AvatarFallback>DF</AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-semibold text-gray-800">
-                Dylan Field
-              </span>
-              <ChevronDown className="h-4 w-4 text-gray-400" />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="hidden lg:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity outline-none">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={userImg.src} />
+                    <AvatarFallback>DF</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-semibold text-gray-800">
+                    Dylan Field
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-gray-400" />
+                </div>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem className="cursor-pointer">
+                  <FileText className="mr-2 h-4 w-4" />
+                  <span>My Posts</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  className="cursor-pointer text-red-600 focus:text-red-600"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
