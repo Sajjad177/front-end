@@ -1,19 +1,17 @@
 "use client";
 
-import React from "react";
 import posts from "@/data/posts.json";
-
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  MoreHorizontal,
+  Camera,
+  Heart,
   MessageSquare,
+  Mic,
+  MoreHorizontal,
   Share2,
   Smile,
-  Camera,
-  Mic,
   ThumbsUp,
-  Heart,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -22,7 +20,7 @@ const PostedFeed = () => {
 
   return (
     <div className="space-y-4">
-      {postData.map((post) => (
+      {postData.map((post: any) => (
         <div
           key={post.id}
           className="bg-white rounded-xl shadow-sm border border-gray-100 w-full overflow-hidden"

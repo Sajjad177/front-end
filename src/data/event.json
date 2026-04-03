@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "title": "NO MORE",
+    "date": "10 Jul",
+    "description": "No more terrorism no more cry",
+    "peopleGoing": 17,
+    "status": "Going",
+    "image": "/images/story-1.jpeg"
+  },
+  {
+    "id": 2,
+    "title": "Save The Earth",
+    "date": "15 Aug",
+    "description": "Plant more trees and save our planet",
+    "peopleGoing": 25,
+    "status": "Going",
+    "image": "/images/story-1.jpeg"
+  },
+  {
+    "id": 3,
+    "title": "Tech Meetup 2026",
+    "date": "01 Sep",
+    "description": "Join us for a developer event",
+    "peopleGoing": 40,
+    "status": "Going",
+    "image": "/images/story-1.jpeg"
+  }
+]
