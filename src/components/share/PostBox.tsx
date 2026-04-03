@@ -77,7 +77,7 @@ const PostBox = () => {
 
   const handlePost = async () => {
     if (!text.trim() && selectedImages.length === 0) {
-      toast.error("Please add text or images before posting.");
+      toast.error("Empty post is not allowed.");
       return;
     }
 
@@ -86,16 +86,19 @@ const PostBox = () => {
     formData.append("visibility", isPublic ? "public" : "private");
     selectedImages.forEach((img) => formData.append("images", img.file));
 
-    postMutation.mutate({ formData, token }, {
-      onSuccess: () => {
-        toast.success("Post created successfully!");
-        setText("");
-        setSelectedImages([]);
+    postMutation.mutate(
+      { formData, token },
+      {
+        onSuccess: () => {
+          toast.success("Post created successfully!");
+          setText("");
+          setSelectedImages([]);
+        },
+        onError: (err: any) => {
+          toast.error(err?.message || "Failed to create post.");
+        },
       },
-      onError: (err: any) => {
-        toast.error(err?.message || "Failed to create post.");
-      },
-    });
+    );
   };
 
   return (

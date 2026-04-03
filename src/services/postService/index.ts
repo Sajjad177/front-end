@@ -21,3 +21,19 @@ export const createPost = async (formData: FormData, token: string) => {
     throw error;
   }
 };
+
+export const getAllPost = async ({ pageParam }: { pageParam?: string }) => {
+  try {
+    const res = await fetch(`${API_URL}/post?cursor=${pageParam || ""}`, {
+      method: "GET",
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || "Failed to fetch posts");
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    throw error;
+  }
+};
