@@ -67,85 +67,107 @@ export const useGetAllLikesForPost = () => {
   });
 };
 
-type ToggleCommentVars = { commentId: string; token: string; postId?: string };
+type ToggleCommentVars = {
+  commentId: string;
+  postId: string;
+  token: string;
+};
 
 export const useToggleLikeForComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ commentId, token }: ToggleCommentVars) =>
-      toggleLikesForComment(commentId, token),
+    mutationFn: async ({ commentId, token, postId }: ToggleCommentVars) => {
+      // Prefer provided postId, otherwise try to find it in the allPosts cache
+      let parentId = postId;
+      if (!parentId) {
+        const allPosts = queryClient.getQueryData(["allPosts"]) as any;
+        if (allPosts) {
+          for (const page of allPosts.pages) {
+            for (const post of page.data) {
+              if (post.comments?.some((c: any) => c._id === commentId)) {
+                parentId = post._id;
+                break;
+              }
+            }
+            if (parentId) break;
+          }
+        }
+      }
 
-    // Optimistic update
-    onMutate: async ({ commentId }: ToggleCommentVars) => {
+      return toggleLikesForComment(commentId, parentId ?? "", token ?? "");
+    },
+
+    // Optimistic Update
+    onMutate: async ({ commentId }) => {
       await queryClient.cancelQueries({ queryKey: ["allPosts"] });
 
-      const previousAllPosts: any = queryClient.getQueryData(["allPosts"]);
+      const previousData = queryClient.getQueryData(["allPosts"]);
 
       queryClient.setQueryData(["allPosts"], (oldData: any) => {
         if (!oldData) return oldData;
 
-        const pages = oldData.pages.map((page: any) => ({
-          ...page,
-          data: page.data.map((post: any) => {
-            if (!post.comments) return post;
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: any) => ({
+            ...page,
+            data: page.data.map((post: any) => ({
+              ...post,
+              comments: post.comments?.map((c: any) => {
+                if (c._id !== commentId) return c;
 
-            const comments = post.comments.map((c: any) => {
-              if (c._id !== commentId) return c;
-              const newLiked = !c.liked;
-              const newTotal = (c.commentTotalLikes ?? 0) + (newLiked ? 1 : -1);
-              return { ...c, liked: newLiked, commentTotalLikes: newTotal };
-            });
-
-            return { ...post, comments };
-          }),
-        }));
-
-        return { ...oldData, pages };
+                const liked = !c.liked;
+                return {
+                  ...c,
+                  liked,
+                  commentTotalLikes:
+                    (c.commentTotalLikes || 0) + (liked ? 1 : -1),
+                };
+              }),
+            })),
+          })),
+        };
       });
 
-      return { previousAllPosts };
+      return { previousData };
     },
 
-    // Rollback on error
-    onError: (err: any, vars: ToggleCommentVars, context: any) => {
-      if (context?.previousAllPosts) {
-        queryClient.setQueryData(["allPosts"], context.previousAllPosts);
+    // Rollback if error
+    onError: (err: any, _vars, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(["allPosts"], context.previousData);
       }
+      console.log(err);
       toast.error(err?.message || "Failed to toggle like");
     },
 
-    // Final reconcile with backend response
-    onSuccess: (res: any, vars: ToggleCommentVars) => {
-      const commentId = vars.commentId;
+    // Sync with backend
+    onSuccess: (res, { commentId }) => {
       const apiLiked = res?.data?.liked;
-      const allPosts = queryClient.getQueryData(["allPosts"]);
 
       queryClient.setQueryData(["allPosts"], (oldData: any) => {
         if (!oldData) return oldData;
 
-        const pages = oldData.pages.map((page: any) => ({
-          ...page,
-          data: page.data.map((post: any) => {
-            if (!post.comments) return post;
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page: any) => ({
+            ...page,
+            data: page.data.map((post: any) => ({
+              ...post,
+              comments: post.comments?.map((c: any) => {
+                if (c._id !== commentId) return c;
 
-            const comments = post.comments.map((c: any) => {
-              if (c._id !== commentId) return c;
-
-              // update liked and total from backend
-              const newLiked = apiLiked;
-              const newTotal = newLiked ? 1 : 0; // or backend returns exact count
-              return { ...c, liked: newLiked, commentTotalLikes: newTotal };
-            });
-
-            return { ...post, comments };
-          }),
-        }));
-
-        return { ...oldData, pages };
+                return {
+                  ...c,
+                  liked: apiLiked,
+                };
+              }),
+            })),
+          })),
+        };
       });
 
-      toast.success(res.message || (apiLiked ? "Liked!" : "Like removed"));
+      toast.success(res.message || "Updated");
     },
   });
 };

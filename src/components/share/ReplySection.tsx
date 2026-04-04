@@ -76,16 +76,33 @@ const ReplySection = ({
   const handleShowLess = () => setVisibleCount(1);
 
   const handelToggleLikeForComment = async () => {
-    if (!session?.accessToken) return toast.error("You must be logged in");
+    console.log("DEBUG DATA:", {
+      commentId: comment._id,
+      postId: postId,
+    });
+
+    if (!session?.accessToken) {
+      return toast.error("You must be logged in");
+    }
 
     if (pendingLikes[comment._id]) return;
-    setPendingLikes((p) => ({ ...p, [comment._id]: true }));
+
+    setPendingLikes((prev) => ({
+      ...prev,
+      [comment._id]: true,
+    }));
 
     try {
-      await toggleLike({ commentId: comment._id, token: session.accessToken });
+      await toggleLike({
+        commentId: comment._id,
+        postId: postId,
+        token: session.accessToken,
+      });
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to toggle like");
     } finally {
-      setPendingLikes((p) => {
-        const next = { ...p };
+      setPendingLikes((prev) => {
+        const next = { ...prev };
         delete next[comment._id];
         return next;
       });
@@ -99,14 +116,8 @@ const ReplySection = ({
     setPendingReplyCommentLikes((p) => ({ ...p, [replyId]: true }));
 
     toggleReplyLike(
-      { replyId, postId },
+      { replyId, postId, token: session.accessToken },
       {
-        // onSuccess: () => {
-        //   toast.success("Toggled reply like");
-        // },
-        // onError: (err: any) => {
-        //   toast.error(err?.message || "Failed to toggle reply like");
-        // },
         onSettled: () => {
           setPendingReplyCommentLikes((p) => {
             const next = { ...p };

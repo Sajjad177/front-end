@@ -39,19 +39,26 @@ export const getAllLikesForPost = async (postId: string) => {
 
 export const toggleLikesForComment = async (
   commentId: string,
+  postId: string,
   token: string,
 ) => {
-  const res = await axios.post(
-    `${API_URL}/like/comment-toggle/${commentId}`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
+  try {
+    const { data } = await axios.post(
+      `${API_URL}/like/comment-toggle/${commentId}`,
+      { postId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       },
-    },
-  );
+    );
 
-  return res.data;
+    return data;
+  } catch (error: any) {
+    console.error("API ERROR:", error.response?.data);
+    throw error;
+  }
 };
 
 export const toggleLikesForCommentReply = async (
