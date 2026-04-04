@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const createComment = async (data: any, token: string) => {
@@ -27,11 +28,17 @@ export const createComment = async (data: any, token: string) => {
   }
 };
 
-export const getAllComment = async ({ pageParam }: { pageParam?: string }) => {
+export const getCommentByPostId = async (
+  postId: string,
+  pageParam?: string,
+) => {
   try {
-    const res = await fetch(`${API_URL}/comment?cursor=${pageParam || ""}`, {
-      method: "GET",
-    });
+    const res = await fetch(
+      `${API_URL}/comment/${postId}?cursor=${pageParam || ""}`,
+      {
+        method: "GET",
+      },
+    );
 
     const result = await res.json();
     if (!res.ok) throw new Error(result.message || "Failed to fetch comments");
