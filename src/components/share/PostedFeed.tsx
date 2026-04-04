@@ -2,20 +2,15 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToggleLikeForPost } from "@/hooks/useLike";
 import { useGetAllPost } from "@/hooks/usepost";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import {
-  Heart,
-  MessageSquare,
-  MoreHorizontal,
-  Share2,
-  Smile,
-  ThumbsUp,
-} from "lucide-react";
+import { MessageSquare, MoreHorizontal, Share2, ThumbsUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import CommentSection from "./CommentSection";
 
 dayjs.extend(relativeTime);
@@ -27,7 +22,11 @@ const PostedFeed = () => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetAllPost();
   const { data: session } = useSession();
+  const token = session?.accessToken;
   const postData = data?.pages.flatMap((page: any) => page.data) || [];
+
+  const { mutate: toggleLike } = useToggleLikeForPost();
+  const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
 
   const handleLoadMore = () => {
     if (hasNextPage) fetchNextPage();
@@ -35,6 +34,35 @@ const PostedFeed = () => {
 
   const toggleExpand = (postId: string) => {
     setExpandedPosts((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
+  const handleToggleLike = (postId: string, token: string | undefined) => {
+    if (!token) {
+      toast.error("You must be logged in");
+      return;
+    }
+
+    if (pendingLikes[postId]) return;
+    setPendingLikes((p) => ({ ...p, [postId]: true }));
+
+    toggleLike(
+      { postId, token },
+      {
+        onSuccess: (res: any) => {
+          toast.success(res?.message || "Toggled successfully");
+        },
+        onError: (err: any) => {
+          toast.error(err?.message || "Something went wrong");
+        },
+        onSettled: () => {
+          setPendingLikes((p) => {
+            const next = { ...p };
+            delete next[postId];
+            return next;
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -129,12 +157,13 @@ const PostedFeed = () => {
             {/* Stats */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
               <div className="flex items-center -space-x-2">
-                <div className="bg-blue-500 rounded-full p-1 border-2 border-white">
-                  <ThumbsUp className="w-2.5 h-2.5 text-white fill-white" />
+                <div className="flex items-center justify-center gap-2 py-2.5 rounded-lg cursor-pointer">
+                  <ThumbsUp className="w-5 h-5 text-blue-500" />
+                  <span className="text-[14px] font-bold text-gray-700">
+                    Like
+                  </span>
                 </div>
-                <div className="bg-red-500 rounded-full p-1 border-2 border-white">
-                  <Heart className="w-2.5 h-2.5 text-white fill-white" />
-                </div>
+
                 <span className="pl-4 text-[13px] text-gray-500 font-medium">
                   {post.totalLikes}+
                 </span>
@@ -147,10 +176,14 @@ const PostedFeed = () => {
 
             {/* Actions */}
             <div className="grid grid-cols-3 gap-1 p-2 border-b border-gray-50">
-              <button className="flex items-center justify-center gap-2 py-2.5 hover:bg-[#F0F7FF] rounded-lg cursor-pointer">
-                <Smile className="w-5 h-5 text-yellow-500" />
+              <button
+                onClick={() => handleToggleLike(post._id, token)}
+                disabled={Boolean(pendingLikes[post._id])}
+                className={`flex items-center justify-center gap-2 py-2.5 hover:bg-[#F0F7FF] rounded-lg ${pendingLikes[post._id] ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                <ThumbsUp className="w-5 h-5 text-blue-500" />
                 <span className="text-[14px] font-bold text-gray-700">
-                  Haha
+                  Like
                 </span>
               </button>
               <button className="flex items-center justify-center gap-2 py-2.5 hover:bg-gray-50 rounded-lg cursor-pointer">

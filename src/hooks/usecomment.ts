@@ -129,6 +129,24 @@ export const useAddReplyToComment = () => {
           };
         },
       );
+      // Also increment the post's totalComments so the feed shows updated count
+      if (payload?.postId) {
+        queryClient.setQueryData(["allPosts"], (oldData: any) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any) => ({
+              ...page,
+              data: page.data.map((post: any) =>
+                post._id === payload.postId
+                  ? { ...post, totalComments: (post.totalComments || 0) + 1 }
+                  : post,
+              ),
+            })),
+          };
+        });
+      }
     },
     onError: (error: any) => {
       console.error("Reply failed:", error?.message);

@@ -32,36 +32,40 @@ const ReplySection = ({
 
   const allReplies = repliesData?.pages.flatMap((page: any) => page.data) || [];
 
+  // Show newest replies first so newly added replies appear immediately
   const sortedReplies = [...allReplies].sort((a, b) =>
-    dayjs(a.createdAt).diff(dayjs(b.createdAt)),
+    dayjs(b.createdAt).diff(dayjs(a.createdAt)),
   );
 
   const displayedReplies = sortedReplies.slice(0, visibleCount);
 
   const handleSendReply = async () => {
     if (!replyInput.trim()) return;
-
-    try {
-      await addReply({
+    addReply(
+      {
         data: {
           commentId: comment._id,
           postId,
           text: replyInput,
         },
         token: session?.accessToken,
-      });
-
-      setReplyInput("");
-      setShowReplyInput(false);
-      toast.success("Your reply has been added!");
-    } catch (error: any) {
-      console.error("Reply error:", error);
-      toast.error(error?.message || "Failed to add reply");
-    }
+      },
+      {
+        onSuccess: () => {
+          setReplyInput("");
+          setShowReplyInput(false);
+          toast.success("Your reply has been added!");
+        },
+        onError: (error: any) => {
+          console.error("Reply error:", error);
+          toast.error(error?.message || "Failed to add reply");
+        },
+      },
+    );
   };
 
   const handleShowMore = () => {
-    setVisibleCount((prev) => prev + 5);
+    setVisibleCount((prev) => Math.min(prev + 5, sortedReplies.length));
   };
 
   const handleShowLess = () => {
@@ -143,7 +147,7 @@ const ReplySection = ({
         ))}
 
         {/* View More / View Less */}
-        {sortedReplies.length > visibleCount && (
+        {sortedReplies.length > 1 && (
           <button
             onClick={
               visibleCount >= sortedReplies.length
@@ -154,7 +158,7 @@ const ReplySection = ({
           >
             {visibleCount >= sortedReplies.length
               ? "View less replies"
-              : `View ${sortedReplies.length - visibleCount} more replies`}
+              : `View ${Math.max(0, sortedReplies.length - visibleCount)} more replies`}
           </button>
         )}
       </div>
