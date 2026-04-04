@@ -2,7 +2,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToggleLikeForPost } from "@/hooks/useLike";
+import { useGetAllLikesForPost, useToggleLikeForPost } from "@/hooks/useLike";
 import { useGetAllPost } from "@/hooks/usepost";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -27,6 +27,8 @@ const PostedFeed = () => {
 
   const { mutate: toggleLike } = useToggleLikeForPost();
   const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
+
+  const { data: likesData } = useGetAllLikesForPost();
 
   const handleLoadMore = () => {
     if (hasNextPage) fetchNextPage();

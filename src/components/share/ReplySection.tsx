@@ -6,9 +6,10 @@ import {
   useAddReplyToComment,
   useGetRepliesByCommentId,
 } from "@/hooks/usecomment";
+import { useToggleLikeForComment } from "@/hooks/useLike";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Send } from "lucide-react";
+import { Send, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -31,23 +32,20 @@ const ReplySection = ({
   const { data: repliesData } = useGetRepliesByCommentId(comment._id);
 
   const allReplies = repliesData?.pages.flatMap((page: any) => page.data) || [];
+  const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
+  const { mutateAsync: toggleLike } = useToggleLikeForComment();
 
-  // Show newest replies first so newly added replies appear immediately
   const sortedReplies = [...allReplies].sort((a, b) =>
     dayjs(b.createdAt).diff(dayjs(a.createdAt)),
   );
-
   const displayedReplies = sortedReplies.slice(0, visibleCount);
 
+  // Send reply
   const handleSendReply = async () => {
     if (!replyInput.trim()) return;
     addReply(
       {
-        data: {
-          commentId: comment._id,
-          postId,
-          text: replyInput,
-        },
+        data: { commentId: comment._id, postId, text: replyInput },
         token: session?.accessToken,
       },
       {
@@ -56,33 +54,49 @@ const ReplySection = ({
           setShowReplyInput(false);
           toast.success("Your reply has been added!");
         },
-        onError: (error: any) => {
-          console.error("Reply error:", error);
-          toast.error(error?.message || "Failed to add reply");
-        },
+        onError: (error: any) =>
+          toast.error(error?.message || "Failed to add reply"),
       },
     );
   };
 
-  const handleShowMore = () => {
+  const handleShowMore = () =>
     setVisibleCount((prev) => Math.min(prev + 5, sortedReplies.length));
-  };
+  const handleShowLess = () => setVisibleCount(1);
 
-  const handleShowLess = () => {
-    setVisibleCount(1);
-  };
+const handelToggleLikeForComment = async () => {
+  if (!session?.accessToken) return toast.error("You must be logged in");
+
+  if (pendingLikes[comment._id]) return;
+  setPendingLikes((p) => ({ ...p, [comment._id]: true }));
+
+  try {
+    await toggleLike({ commentId: comment._id, token: session.accessToken });
+  } finally {
+    setPendingLikes((p) => {
+      const next = { ...p };
+      delete next[comment._id];
+      return next;
+    });
+  }
+};
 
   return (
     <>
       {/* Action Row */}
       <div className="flex items-center gap-3 mt-1 ml-2 text-[12px] font-bold text-gray-500">
-        <button className="hover:text-blue-600 cursor-pointer">Like.</button>
+        <button
+          onClick={handelToggleLikeForComment}
+          className={`flex items-center gap-1 hover:text-blue-600 cursor-pointer`}
+        >
+          Like
+        </button>
 
         <button
           onClick={() => setShowReplyInput(!showReplyInput)}
           className="hover:text-blue-600 cursor-pointer"
         >
-          Reply.
+          Reply
         </button>
 
         <button className="hover:text-blue-600 cursor-pointer">Share</button>
@@ -129,11 +143,14 @@ const ReplySection = ({
               </div>
 
               <div className="flex flex-wrap items-center gap-3 mt-1 ml-1 text-[11px] font-semibold text-gray-500">
-                <button className="hover:text-blue-600 cursor-pointer">
-                  Like.
+                <button className="hover:text-blue-600 cursor-pointer flex items-center gap-1">
+                  <ThumbsUp
+                    className={`w-3 h-3 ${reply.liked ? "text-blue-500 fill-blue-500" : "text-gray-400"}`}
+                  />
+                  {reply.commentTotalLikes ?? 0}
                 </button>
                 <button className="hover:text-blue-600 cursor-pointer">
-                  Reply.
+                  Reply
                 </button>
                 <button className="hover:text-blue-600 cursor-pointer">
                   Share
@@ -146,7 +163,6 @@ const ReplySection = ({
           </div>
         ))}
 
-        {/* View More / View Less */}
         {sortedReplies.length > 1 && (
           <button
             onClick={

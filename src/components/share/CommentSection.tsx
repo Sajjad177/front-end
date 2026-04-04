@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCommentPost, useGetCommentByPostId } from "@/hooks/usecomment";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Camera, Heart, Mic, Send, ThumbsUp } from "lucide-react";
+import { Camera, Mic, Send, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import ReplySection from "./ReplySection";
@@ -126,10 +126,12 @@ const CommentSection = ({
                 </p>
 
                 {/* Reaction Badge */}
-                <div className="absolute -right-3 -bottom-2 flex items-center bg-white shadow-sm border border-gray-100 rounded-full px-1 py-0.5">
+                <div className="absolute -right-3 -bottom-2 flex items-center bg-white border border-gray-100 rounded-full px-1 py-0.5">
                   <ThumbsUp className="w-2.5 h-2.5 text-blue-500 fill-blue-500 mr-0.5" />
-                  <Heart className="w-2.5 h-2.5 text-red-500 fill-red-500" />
-                  <span className="text-[10px] ml-1 text-gray-500">198</span>
+
+                  <span className="text-[10px] ml-1 text-gray-500">
+                    {comment.commentTotalLikes || 0}
+                  </span>
                 </div>
               </div>
               <span className="text-[10px] text-gray-400 mt-0.5">
