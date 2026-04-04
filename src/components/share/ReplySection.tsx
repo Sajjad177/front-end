@@ -2,11 +2,17 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAddReplyToComment } from "@/hooks/usecomment";
-
+import {
+  useAddReplyToComment,
+  useGetRepliesByCommentId,
+} from "@/hooks/usecomment";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { Send } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+
+dayjs.extend(relativeTime);
 
 const ReplySection = ({
   comment,
@@ -17,10 +23,20 @@ const ReplySection = ({
   session: any;
   postId: string;
 }) => {
-  const [showReply, setShowReply] = useState(false);
+  const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyInput, setReplyInput] = useState("");
+  const [visibleCount, setVisibleCount] = useState(1);
 
-  const { mutate: addReply, isPending } = useAddReplyToComment();
+  const { mutate: addReply, isPending: isReplying } = useAddReplyToComment();
+  const { data: repliesData } = useGetRepliesByCommentId(comment._id);
+
+  const allReplies = repliesData?.pages.flatMap((page: any) => page.data) || [];
+
+  const sortedReplies = [...allReplies].sort((a, b) =>
+    dayjs(a.createdAt).diff(dayjs(b.createdAt)),
+  );
+
+  const displayedReplies = sortedReplies.slice(0, visibleCount);
 
   const handleSendReply = async () => {
     if (!replyInput.trim()) return;
@@ -36,14 +52,22 @@ const ReplySection = ({
       });
 
       setReplyInput("");
-      setShowReply(false);
-
+      setShowReplyInput(false);
       toast.success("Your reply has been added!");
     } catch (error: any) {
       console.error("Reply error:", error);
       toast.error(error?.message || "Failed to add reply");
     }
   };
+
+  const handleShowMore = () => {
+    setVisibleCount((prev) => prev + 5);
+  };
+
+  const handleShowLess = () => {
+    setVisibleCount(1);
+  };
+
   return (
     <>
       {/* Action Row */}
@@ -51,7 +75,7 @@ const ReplySection = ({
         <button className="hover:text-blue-600 cursor-pointer">Like.</button>
 
         <button
-          onClick={() => setShowReply(!showReply)}
+          onClick={() => setShowReplyInput(!showReplyInput)}
           className="hover:text-blue-600 cursor-pointer"
         >
           Reply.
@@ -61,7 +85,7 @@ const ReplySection = ({
       </div>
 
       {/* Reply Input */}
-      {showReply && (
+      {showReplyInput && (
         <div className="flex items-center gap-2 mt-2 ml-2">
           <input
             type="text"
@@ -73,7 +97,7 @@ const ReplySection = ({
           />
           <button
             onClick={handleSendReply}
-            disabled={isPending}
+            disabled={isReplying}
             className="bg-blue-500 text-white p-1 rounded-full"
           >
             <Send className="w-3 h-3" />
@@ -82,20 +106,46 @@ const ReplySection = ({
       )}
 
       {/* Reply List */}
-      {comment.replies?.map((reply: any) => (
-        <div key={reply._id} className="flex gap-2 mt-2 ml-6">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={reply.authorId?.avatar} />
-            <AvatarFallback>
-              {reply.authorId?.firstName?.slice(0, 1)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="bg-gray-100 px-3 py-1.5 rounded-xl text-[12px]">
-            <span className="font-bold">{reply.authorId?.firstName}</span>{" "}
-            {reply.text}
+      <div className="mt-2 space-y-2 ml-6">
+        {displayedReplies.map((reply: any) => (
+          <div key={reply._id} className="flex gap-2 ml-6 mt-1">
+            <Avatar className="h-6 w-6 shrink-0">
+              <AvatarImage src={reply.authorId?.avatar} />
+              <AvatarFallback>
+                {reply.authorId?.firstName?.slice(0, 1)}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex flex-col">
+              <div className="bg-gray-100 px-3 py-2 rounded-xl  text-[12px]">
+                <span className="font-semibold text-gray-900">
+                  {reply.authorId?.firstName}
+                </span>
+                <span className="text-gray-800">{reply.text}</span>
+              </div>
+              <span className="text-[10px] text-gray-400 mt-0.5">
+                {dayjs(reply.createdAt).fromNow()}
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+
+        {/* View More / View Less */}
+        {sortedReplies.length > 2 && (
+          <button
+            onClick={
+              visibleCount >= sortedReplies.length
+                ? handleShowLess
+                : handleShowMore
+            }
+            className="text-[12px] font-semibold text-gray-500 cursor-pointer hover:underline ml-6"
+          >
+            {visibleCount >= sortedReplies.length
+              ? "View less replies"
+              : `View ${sortedReplies.length - visibleCount} more replies`}
+          </button>
+        )}
+      </div>
     </>
   );
 };

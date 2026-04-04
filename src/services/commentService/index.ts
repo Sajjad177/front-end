@@ -72,3 +72,25 @@ export const addReplyToComment = async (data: any, token: string) => {
     throw error;
   }
 };
+
+export const getCommentReplyByCommentId = async (
+  commentId: string,
+  pageParam?: string,
+) => {
+  try {
+    const res = await fetch(
+      `${API_URL}/replyComment/${commentId}?cursor=${pageParam || ""}`,
+      {
+        method: "GET",
+      },
+    );
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || "Failed to fetch comments");
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    throw error;
+  }
+};

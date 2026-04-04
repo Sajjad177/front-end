@@ -132,6 +132,9 @@ const CommentSection = ({
                   <span className="text-[10px] ml-1 text-gray-500">198</span>
                 </div>
               </div>
+              <span className="text-[10px] text-gray-400 mt-0.5">
+                {dayjs(comment.createdAt).fromNow()}
+              </span>
 
               <ReplySection
                 comment={comment}

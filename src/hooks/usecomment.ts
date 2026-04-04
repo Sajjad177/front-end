@@ -3,6 +3,7 @@ import {
   addReplyToComment,
   createComment,
   getCommentByPostId,
+  getCommentReplyByCommentId,
 } from "@/services/commentService";
 import {
   useInfiniteQuery,
@@ -109,7 +110,10 @@ export const useAddReplyToComment = () => {
                 ...page,
                 data: page.data.map((comment: any) =>
                   comment._id === payload.commentId
-                    ? { ...comment, replies: [...(comment.replies || []), res?.data] }
+                    ? {
+                        ...comment,
+                        replies: [...(comment.replies || []), res?.data],
+                      }
                     : comment,
                 ),
               })),
@@ -121,5 +125,15 @@ export const useAddReplyToComment = () => {
     onError: (error: any) => {
       console.error("Reply failed:", error?.message);
     },
+  });
+};
+
+export const useGetRepliesByCommentId = (commentId: string) => {
+  return useInfiniteQuery({
+    queryKey: ["repliesByCommentId", commentId],
+    queryFn: ({ pageParam }) =>
+      getCommentReplyByCommentId(commentId, pageParam),
+    getNextPageParam: (lastPage) => lastPage.meta.nextCursor || undefined,
+    initialPageParam: undefined,
   });
 };
