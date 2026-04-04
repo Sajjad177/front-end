@@ -2,6 +2,7 @@
 import {
   getAllLikesForPost,
   toggleLikesForComment,
+  toggleLikesForCommentReply,
   toggleLikesForPost,
 } from "@/services/likesService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -145,6 +146,41 @@ export const useToggleLikeForComment = () => {
       });
 
       toast.success(res.message || (apiLiked ? "Liked!" : "Like removed"));
+    },
+  });
+};
+
+type ToggleCommentReplyVars = {
+  replyId: string;
+  token?: string;
+  postId?: string;
+};
+
+export const useToggleLikesForCommentReply = (token: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, ToggleCommentReplyVars>({
+    mutationFn: (vars: ToggleCommentReplyVars) =>
+      toggleLikesForCommentReply(
+        vars.replyId,
+        vars.token ?? token ?? "",
+        vars.postId ?? "",
+      ),
+    onSuccess: (data, vars) => {
+      // Refresh the comment replies query for the parent post (if we have postId)
+      if (vars.postId) {
+        queryClient.invalidateQueries({
+          queryKey: ["commentReplies", vars.postId],
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["commentReplies"] });
+      }
+
+      toast.success((data as any).message || "Like toggled successfully");
+    },
+    onError: (error: any) => {
+      console.error("Like toggle failed:", error);
+      toast.error(error?.message || "Failed to toggle like");
     },
   });
 };

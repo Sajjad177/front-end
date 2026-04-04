@@ -53,3 +53,21 @@ export const toggleLikesForComment = async (
 
   return res.data;
 };
+
+export const toggleLikesForCommentReply = async (
+  replyId: string,
+  token: string,
+  postId: string,
+) => {
+  const res = await axios.post(
+    `${API_URL}/like/reply-comment-toggle/${replyId}`,
+    { postId },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  return res.data;
+};
