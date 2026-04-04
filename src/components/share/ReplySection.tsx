@@ -116,22 +116,34 @@ const ReplySection = ({
               </AvatarFallback>
             </Avatar>
 
-            <div className="flex flex-col">
-              <div className="bg-gray-100 px-3 py-2 rounded-xl  text-[12px]">
-                <span className="font-semibold text-gray-900">
+            <div className="flex-1">
+              <div className="bg-gray-100 px-3 py-2 rounded-xl text-[12px]">
+                <div className="font-semibold text-gray-900">
                   {reply.authorId?.firstName}
-                </span>
-                <span className="text-gray-800">{reply.text}</span>
+                </div>
+                <div className="text-gray-800">{reply.text}</div>
               </div>
-              <span className="text-[10px] text-gray-400 mt-0.5">
-                {dayjs(reply.createdAt).fromNow()}
-              </span>
+
+              <div className="flex flex-wrap items-center gap-3 mt-1 ml-1 text-[11px] font-semibold text-gray-500">
+                <button className="hover:text-blue-600 cursor-pointer">
+                  Like.
+                </button>
+                <button className="hover:text-blue-600 cursor-pointer">
+                  Reply.
+                </button>
+                <button className="hover:text-blue-600 cursor-pointer">
+                  Share
+                </button>
+                <span className="text-gray-400">
+                  {dayjs(reply.createdAt).fromNow()}
+                </span>
+              </div>
             </div>
           </div>
         ))}
 
         {/* View More / View Less */}
-        {sortedReplies.length > 2 && (
+        {sortedReplies.length > visibleCount && (
           <button
             onClick={
               visibleCount >= sortedReplies.length

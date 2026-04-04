@@ -92,35 +92,43 @@ type AddReplyVars = {
 
 export const useAddReplyToComment = () => {
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
 
   return useMutation<any, Error, AddReplyVars>({
     mutationFn: async ({ data, token }) => {
       return addReplyToComment(data, token);
     },
     onSuccess: (res, { data: payload }) => {
-      if (payload.postId) {
-        queryClient.setQueryData(
-          ["commentsByPostId", payload.postId],
-          (oldData: any) => {
-            if (!oldData) return oldData;
+      const reply = res?.data || res?.reply || res;
 
-            return {
-              ...oldData,
-              pages: oldData.pages.map((page: any) => ({
-                ...page,
-                data: page.data.map((comment: any) =>
-                  comment._id === payload.commentId
-                    ? {
-                        ...comment,
-                        replies: [...(comment.replies || []), res?.data],
-                      }
-                    : comment,
-                ),
-              })),
-            };
-          },
-        );
+      // Enrich author from session for optimistic updates
+      if (session?.user && !reply.authorId) {
+        reply.authorId = {
+          _id: session.user.id,
+          firstName: session.user.firstName,
+          lastName: session.user.lastName,
+        };
       }
+
+      // Update the replies query cache for immediate display
+      queryClient.setQueryData(
+        ["repliesByCommentId", payload.commentId],
+        (oldData: any) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any, index: number) =>
+              index === 0
+                ? {
+                    ...page,
+                    data: [reply, ...page.data],
+                  }
+                : page,
+            ),
+          };
+        },
+      );
     },
     onError: (error: any) => {
       console.error("Reply failed:", error?.message);
