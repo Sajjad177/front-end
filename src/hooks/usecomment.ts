@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createComment, getCommentByPostId } from "@/services/commentService";
+import {
+  addReplyToComment,
+  createComment,
+  getCommentByPostId,
+} from "@/services/commentService";
 import {
   useInfiniteQuery,
   useMutation,
@@ -77,5 +81,45 @@ export const useGetCommentByPostId = (postId: string) => {
     queryFn: ({ pageParam }) => getCommentByPostId(postId, pageParam),
     getNextPageParam: (lastPage) => lastPage.meta.nextCursor || undefined,
     initialPageParam: undefined,
+  });
+};
+
+type AddReplyVars = {
+  data: { text: string; commentId: string; postId: string };
+  token: string;
+};
+
+export const useAddReplyToComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<any, Error, AddReplyVars>({
+    mutationFn: async ({ data, token }) => {
+      return addReplyToComment(data, token);
+    },
+    onSuccess: (res, { data: payload }) => {
+      if (payload.postId) {
+        queryClient.setQueryData(
+          ["commentsByPostId", payload.postId],
+          (oldData: any) => {
+            if (!oldData) return oldData;
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page: any) => ({
+                ...page,
+                data: page.data.map((comment: any) =>
+                  comment._id === payload.commentId
+                    ? { ...comment, replies: [...(comment.replies || []), res?.data] }
+                    : comment,
+                ),
+              })),
+            };
+          },
+        );
+      }
+    },
+    onError: (error: any) => {
+      console.error("Reply failed:", error?.message);
+    },
   });
 };

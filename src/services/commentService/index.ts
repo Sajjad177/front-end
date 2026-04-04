@@ -49,3 +49,26 @@ export const getCommentByPostId = async (
     throw error;
   }
 };
+
+export const addReplyToComment = async (data: any, token: string) => {
+  try {
+    const res = await fetch(`${API_URL}/replyComment/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+    if (!res.ok) {
+      throw new Error(result.message || "Reply creation failed");
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Error adding reply to comment:", error);
+    throw error;
+  }
+};

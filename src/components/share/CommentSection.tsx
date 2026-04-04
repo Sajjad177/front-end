@@ -8,6 +8,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { Camera, Heart, Mic, Send, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import ReplySection from "./ReplySection";
 
 dayjs.extend(relativeTime);
 
@@ -21,19 +22,16 @@ const CommentSection = ({
   const token = session?.accessToken;
   const { mutate: commentPost } = useCommentPost();
   const [commentInput, setCommentInput] = useState("");
-  const [visibleCount, setVisibleCount] = useState(1); // 👈 NEW
-
+  const [visibleCount, setVisibleCount] = useState(1);
   const { data: commentsData } = useGetCommentByPostId(postId);
 
   const allComments =
     commentsData?.pages.flatMap((page: any) => page.data) || [];
 
-  // ✅ Sort newest first
   const sortedComments = [...allComments].sort((a, b) =>
     dayjs(b.createdAt).diff(dayjs(a.createdAt)),
   );
 
-  // ✅ slice based on visibleCount
   const displayedComments = sortedComments.slice(0, visibleCount);
 
   const handleSendComment = () => {
@@ -54,12 +52,10 @@ const CommentSection = ({
     );
   };
 
-  // ✅ handle show more
   const handleShowMore = () => {
     setVisibleCount((prev) => prev + 5);
   };
 
-  // ✅ handle show less
   const handleShowLess = () => {
     setVisibleCount(1);
   };
@@ -94,7 +90,6 @@ const CommentSection = ({
         </div>
       </div>
 
-      {/* ✅ View Toggle Button */}
       {sortedComments.length > 1 && (
         <button
           onClick={
@@ -138,21 +133,11 @@ const CommentSection = ({
                 </div>
               </div>
 
-              {/* Action Row */}
-              <div className="flex items-center gap-3 mt-1 ml-2 text-[12px] font-bold text-gray-500">
-                <button className="hover:text-blue-600 cursor-pointer">
-                  Like.
-                </button>
-                <button className="hover:text-blue-600 cursor-pointer">
-                  Reply.
-                </button>
-                <button className="hover:text-blue-600 cursor-pointer">
-                  Share
-                </button>
-                <span className="font-normal text-gray-400">
-                  .{dayjs(comment.createdAt).format("mm")}m
-                </span>
-              </div>
+              <ReplySection
+                comment={comment}
+                session={session}
+                postId={postId}
+              />
             </div>
           </div>
         ))}
