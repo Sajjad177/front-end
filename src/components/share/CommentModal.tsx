@@ -6,7 +6,7 @@ import { useCommentPost } from "@/hooks/usecomment";
 import { useGetAllCommentByPostId } from "@/hooks/usepost";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Camera, CloudCog, Mic, Send, ThumbsUp } from "lucide-react";
+import { Camera, Mic, Send, ThumbsUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -59,6 +59,8 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
       {
         onSuccess: () => {
           setCommentInput("");
+          const el = document.getElementById("comment-modal-input");
+          if (el) el.style.height = "auto";
           // Reset comment view to see the new one
           setVisibleCommentsCount(5);
           toast.success("Comment created successfully!");
@@ -255,27 +257,38 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
 
         {/* Input Field below */}
         <div className="p-4 border-t bg-white rounded-b-xl">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
+          <div className="flex items-end gap-3">
+            <Avatar className="h-8 w-8 shrink-0">
               <AvatarImage src={session?.user?.image || "/images/my-avatar.jpg"} />
               <AvatarFallback>ME</AvatarFallback>
             </Avatar>
-            <div className="flex-1 bg-slate-50 border border-slate-200/80 rounded-[20px] px-4 py-1.5 flex items-center justify-between focus-within:ring-2 focus-within:ring-slate-100 focus-within:border-slate-300 transition-all">
-              <input
-                type="text"
+            <div className="flex-1 bg-slate-50 border border-slate-200/80 rounded-[20px] px-4 py-1.5 flex items-end justify-between focus-within:ring-2 focus-within:ring-slate-100 focus-within:border-slate-300 transition-all">
+              <textarea
+                id="comment-modal-input"
+                rows={1}
                 placeholder="Write a comment..."
                 value={commentInput}
-                onChange={(e) => setCommentInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendComment()}
-                className="bg-transparent outline-none text-[14px] w-full text-slate-700 placeholder:text-slate-400"
+                onChange={(e) => {
+                  setCommentInput(e.target.value);
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${Math.min(e.target.scrollHeight, 46)}px`;
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    if (commentInput.trim()) handleSendComment();
+                  }
+                }}
+                className="bg-transparent outline-none text-[14px] w-full text-slate-700 placeholder:text-slate-400 resize-none overflow-y-auto min-h-[20px] max-h-[46px] py-[2px] pr-2 no-scrollbar"
+                style={{ lineHeight: "20px" }}
               />
-              <div className="flex items-center gap-2.5 text-slate-400 pl-2">
-                <Mic className="w-4 h-4 cursor-pointer hover:text-slate-600 transition-colors" />
-                <Camera className="w-4 h-4 cursor-pointer hover:text-slate-600 transition-colors" />
+              <div className="flex items-center gap-2.5 text-slate-400 pl-2 pb-[1px]">
+                <Mic className="w-4 h-4 cursor-pointer hover:text-slate-600 transition-colors shrink-0" />
+                <Camera className="w-4 h-4 cursor-pointer hover:text-slate-600 transition-colors shrink-0" />
                 <button
                   onClick={handleSendComment}
                   disabled={!commentInput.trim()}
-                  className="bg-blue-500 cursor-pointer p-1.5 rounded-full text-white hover:bg-blue-600 transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed ml-1"
+                  className="bg-blue-500 cursor-pointer p-1.5 rounded-full text-white hover:bg-blue-600 transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed ml-1 shrink-0"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </button>

@@ -51,7 +51,6 @@ const ReplySection = ({
 
   const displayedReplies = sortedReplies.slice(0, visibleCount);
 
-  // Send reply
   const handleSendReply = async () => {
     if (!replyInput.trim()) return;
     addReply(
@@ -154,25 +153,36 @@ const ReplySection = ({
 
       {/* Reply Input */}
       {showReplyInput && (
-        <div className="flex items-start gap-2 mt-2 ml-3">
+        <div className="flex items-end gap-2 mt-2 ml-3">
           <Avatar className="h-6 w-6 shrink-0 mt-0.5">
             <AvatarImage src={session?.user?.image || "/images/my-avatar.jpg"} />
             <AvatarFallback>ME</AvatarFallback>
           </Avatar>
-          <div className="flex-1 flex items-center bg-slate-50 border border-slate-200/80 rounded-[20px] px-3 py-1 focus-within:ring-2 focus-within:ring-slate-100 focus-within:border-slate-300 transition-all">
-            <input
-              type="text"
+          <div className="flex-1 flex items-end bg-slate-50 border border-slate-200/80 rounded-[20px] px-3 py-1 focus-within:ring-2 focus-within:ring-slate-100 focus-within:border-slate-300 transition-all">
+            <textarea
+              id={`reply-input-${comment._id}`}
+              rows={1}
               placeholder="Write a reply..."
               value={replyInput}
-              onChange={(e) => setReplyInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSendReply()}
-              className="flex-1 bg-transparent text-[13px] outline-none text-slate-700 placeholder:text-slate-400 min-w-0"
+              onChange={(e) => {
+                setReplyInput(e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = `${Math.min(e.target.scrollHeight, 46)}px`;
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (replyInput.trim()) handleSendReply();
+                }
+              }}
+              className="flex-1 bg-transparent text-[13px] outline-none text-slate-700 placeholder:text-slate-400 min-w-0 resize-none overflow-y-auto min-h-[20px] max-h-[46px] py-[2px] pr-2 no-scrollbar"
+              style={{ lineHeight: "20px" }}
               autoFocus
             />
             <button
               onClick={handleSendReply}
               disabled={isReplying || !replyInput.trim()}
-              className="ml-2 bg-blue-500 hover:bg-blue-600 transition-transform hover:scale-105 active:scale-95 text-white p-1.5 rounded-full disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed shrink-0"
+              className="ml-2 mb-[1px] bg-blue-500 hover:bg-blue-600 transition-transform hover:scale-105 active:scale-95 text-white p-1.5 rounded-full disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed shrink-0"
             >
               <Send className="w-3.5 h-3.5" />
             </button>
