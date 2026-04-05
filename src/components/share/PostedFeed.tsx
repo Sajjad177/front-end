@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import CommentSection from "./CommentSection";
+import CommentModal from "./CommentModal";
 import LikesModal from "./LikesModal";
 
 dayjs.extend(relativeTime);
@@ -33,7 +33,9 @@ const PostedFeed = () => {
   const [showLikesModal, setShowLikesModal] = useState(false);
   const [likesList, setLikesList] = useState<any[]>([]);
   const [likesModalLoading, setLikesModalLoading] = useState(false);
-
+  const [activeCommentPostId, setActiveCommentPostId] = useState<string | null>(
+    null,
+  );
 
   const handleLoadMore = () => {
     if (hasNextPage) fetchNextPage();
@@ -222,7 +224,10 @@ const PostedFeed = () => {
               </button>
               <button className="flex items-center justify-center gap-2 py-2.5 hover:bg-gray-50 rounded-lg cursor-pointer">
                 <MessageSquare className="w-5 h-5 text-gray-500" />
-                <span className="text-[14px] font-bold text-gray-700">
+                <span
+                  onClick={() => setActiveCommentPostId(post._id)}
+                  className="text-[14px] font-bold text-gray-700"
+                >
                   Comment
                 </span>
               </button>
@@ -235,7 +240,11 @@ const PostedFeed = () => {
             </div>
 
             {/* Comment Section */}
-            <CommentSection postId={post._id} session={session} />
+            <CommentModal
+              postId={activeCommentPostId}
+              show={Boolean(activeCommentPostId)}
+              onClose={() => setActiveCommentPostId(null)}
+            />
           </div>
         );
       })}
