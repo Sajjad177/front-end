@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import {
   Bell,
   ChevronDown,
-  FileText,
   Home,
   LogOut,
   Menu,
@@ -86,7 +85,9 @@ const Navbar = () => {
                 <div className="hidden lg:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity outline-none">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={userImg.src} />
-                    <AvatarFallback>{user?.firstName?.charAt(0) || 'U'}</AvatarFallback>
+                    <AvatarFallback>
+                      {user?.firstName?.charAt(0) || "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <span className="text-sm font-semibold text-gray-800">
                     {user?.firstName} {user?.lastName}
@@ -96,11 +97,6 @@ const Navbar = () => {
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem className="cursor-pointer">
-                  <FileText className="mr-2 h-4 w-4" />
-                  <span>My Posts</span>
-                </DropdownMenuItem>
-
                 <DropdownMenuItem
                   className="cursor-pointer text-red-600 focus:text-red-600"
                   onClick={handleLogout}
