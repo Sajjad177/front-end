@@ -1,9 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { createPost, getAllCommentByPostId, getAllPost } from "@/services/postService";
+import {
+  createPost,
+  getAllCommentByPostId,
+  getAllPost,
+} from "@/services/postService";
 import {
   useInfiniteQuery,
   useMutation,
-  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
@@ -78,19 +80,19 @@ export const useGetAllPost = () => {
 
   return useInfiniteQuery({
     queryKey: ["allPosts"],
-    queryFn: ({ pageParam }) => getAllPost({ pageParam: pageParam as string | undefined, token }),
+    queryFn: ({ pageParam }) =>
+      getAllPost({ pageParam: pageParam as string | undefined, token }),
     getNextPageParam: (lastPage) => lastPage.meta.nextCursor || undefined,
     initialPageParam: undefined,
     enabled: !!token,
   });
 };
 
-
-
 export const useGetAllCommentByPostId = ({ postId }: { postId: string }) => {
   return useInfiniteQuery({
     queryKey: ["allComments", postId],
-    queryFn: ({ pageParam = 1 }) => getAllCommentByPostId({ postId, pageParam }),
+    queryFn: ({ pageParam = 1 }) =>
+      getAllCommentByPostId({ postId, pageParam }),
     getNextPageParam: (lastPage: any, allPages: any[]) => {
       if (lastPage?.data?.length === 5) {
         return allPages.length + 1;

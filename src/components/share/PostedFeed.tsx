@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -6,7 +5,7 @@ import { useGetAllLikesForPost, useToggleLikeForPost } from "@/hooks/useLike";
 import { useGetAllPost } from "@/hooks/usepost";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Loader2, MessageSquare, MoreHorizontal, Share2, ThumbsUp } from "lucide-react";
+import { Loader2, MessageSquare, Share2, ThumbsUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
@@ -132,7 +131,7 @@ const PostedFeed = () => {
                   </span>
                 </div>
               </div>
-              <PostOptions postId={post._id} />
+              <PostOptions />
             </div>
             {/* Content & Images */}
             <div className="px-4 pb-3">
@@ -190,25 +189,36 @@ const PostedFeed = () => {
             </div>
             {/* Stats */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
-              <div 
+              <div
                 className="flex items-center cursor-pointer group"
-                onClick={() => post.totalLikes > 0 && handleToggleLikesModal(post._id)}
+                onClick={() =>
+                  post.totalLikes > 0 && handleToggleLikesModal(post._id)
+                }
               >
                 {post.totalLikes > 0 && (
                   <div className="flex items-center">
-                    {(post.likes && post.likes.length > 0) ? (
+                    {post.likes && post.likes.length > 0 ? (
                       <div className="flex items-center -space-x-1.5">
-                        {post.likes.slice(0, 3).map((like: any, index: number) => {
-                          const u = like.userId || like;
-                          return (
-                            <Avatar key={u._id || index} className="w-[22px] h-[22px] border-2 border-white" style={{ zIndex: 10 - index }}>
-                              <AvatarImage src={u.avatar || u.image} className="object-cover" />
-                              <AvatarFallback className="text-[8px] font-bold bg-[#e9f2ff] text-[#007AFF]">
-                                {`${u.firstName?.charAt(0) || "U"}${u.lastName?.charAt(0) || ""}`}
-                              </AvatarFallback>
-                            </Avatar>
-                          );
-                        })}
+                        {post.likes
+                          .slice(0, 3)
+                          .map((like: any, index: number) => {
+                            const u = like.userId || like;
+                            return (
+                              <Avatar
+                                key={u._id || index}
+                                className="w-[22px] h-[22px] border-2 border-white"
+                                style={{ zIndex: 10 - index }}
+                              >
+                                <AvatarImage
+                                  src={u.avatar || u.image}
+                                  className="object-cover"
+                                />
+                                <AvatarFallback className="text-[8px] font-bold bg-[#e9f2ff] text-[#007AFF]">
+                                  {`${u.firstName?.charAt(0) || "U"}${u.lastName?.charAt(0) || ""}`}
+                                </AvatarFallback>
+                              </Avatar>
+                            );
+                          })}
                         {post.totalLikes > 3 && (
                           <div className="min-w-[22px] px-1 h-[22px] rounded-full bg-blue-500 border-2 border-white flex items-center justify-center relative z-0 shadow-sm">
                             <span className="text-white text-[px] font-bold">
@@ -220,7 +230,10 @@ const PostedFeed = () => {
                     ) : (
                       <div className="flex items-center gap-1.5">
                         <div className="w-[22px] h-[22px] rounded-full bg-blue-500 flex items-center justify-center">
-                          <ThumbsUp className="w-[11px] h-[11px] text-white" fill="currentColor" />
+                          <ThumbsUp
+                            className="w-[11px] h-[11px] text-white"
+                            fill="currentColor"
+                          />
                         </div>
                         <span className="text-[15px] font-medium text-gray-500 group-hover:underline">
                           {post.totalLikes}
@@ -231,7 +244,7 @@ const PostedFeed = () => {
                 )}
               </div>
               <div className="flex items-center gap-3 text-[13px] text-gray-500">
-                <span 
+                <span
                   onClick={() => setActiveCommentPostId(post._id)}
                   className="cursor-pointer hover:underline"
                 >
@@ -254,11 +267,13 @@ const PostedFeed = () => {
                 disabled={Boolean(pendingLikes[post._id])}
                 className={`flex items-center justify-center gap-2 py-2.5 hover:bg-[#F0F7FF] rounded-lg ${pendingLikes[post._id] ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
               >
-                <ThumbsUp 
-                  className={`w-5 h-5 ${post.liked ? 'text-blue-600' : 'text-gray-500'}`} 
+                <ThumbsUp
+                  className={`w-5 h-5 ${post.liked ? "text-blue-600" : "text-gray-500"}`}
                   fill={post.liked ? "currentColor" : "none"}
                 />
-                <span className={`text-[14px] font-bold ${post.liked ? 'text-blue-600' : 'text-gray-700'}`}>
+                <span
+                  className={`text-[14px] font-bold ${post.liked ? "text-blue-600" : "text-gray-700"}`}
+                >
                   Like
                 </span>
               </button>
@@ -277,7 +292,7 @@ const PostedFeed = () => {
                   Share
                 </span>
               </button>
- 
+
               <CommentModal
                 postId={activeCommentPostId}
                 show={Boolean(activeCommentPostId)}
