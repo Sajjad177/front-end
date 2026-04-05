@@ -190,20 +190,45 @@ const PostedFeed = () => {
             </div>
             {/* Stats */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
-              <div className="flex items-center -space-x-2">
-                <hr className="hover:flex border border-red-500" />
-                <button className="flex items-center justify-center gap-2 py-2.5 rounded-lg cursor-pointer">
-                  <ThumbsUp className="w-5 h-5 text-blue-500" />
-                  <span className="text-[14px] font-bold text-gray-700">
-                    Like
-                  </span>
-                </button>
-                <span
-                  onClick={() => handleToggleLikesModal(post._id)}
-                  className="text-[14px] font-bold text-gray-700 cursor-pointer hover:underline ml-3"
-                >
-                  {post.totalLikes}+
-                </span>
+              <div 
+                className="flex items-center cursor-pointer group"
+                onClick={() => post.totalLikes > 0 && handleToggleLikesModal(post._id)}
+              >
+                {post.totalLikes > 0 && (
+                  <div className="flex items-center">
+                    {(post.likes && post.likes.length > 0) ? (
+                      <div className="flex items-center -space-x-1.5">
+                        {post.likes.slice(0, 3).map((like: any, index: number) => {
+                          const u = like.userId || like;
+                          return (
+                            <Avatar key={u._id || index} className="w-[22px] h-[22px] border-2 border-white" style={{ zIndex: 10 - index }}>
+                              <AvatarImage src={u.avatar || u.image} className="object-cover" />
+                              <AvatarFallback className="text-[8px] font-bold bg-[#e9f2ff] text-[#007AFF]">
+                                {`${u.firstName?.charAt(0) || "U"}${u.lastName?.charAt(0) || ""}`}
+                              </AvatarFallback>
+                            </Avatar>
+                          );
+                        })}
+                        {post.totalLikes > 3 && (
+                          <div className="min-w-[22px] px-1 h-[22px] rounded-full bg-blue-500 border-2 border-white flex items-center justify-center relative z-0 shadow-sm">
+                            <span className="text-white text-[px] font-bold">
+                              {post.totalLikes - 3}+
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-[22px] h-[22px] rounded-full bg-blue-500 flex items-center justify-center">
+                          <ThumbsUp className="w-[11px] h-[11px] text-white" fill="currentColor" />
+                        </div>
+                        <span className="text-[15px] font-medium text-gray-500 group-hover:underline">
+                          {post.totalLikes}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-3 text-[13px] text-gray-500">
                 <span 
@@ -229,8 +254,11 @@ const PostedFeed = () => {
                 disabled={Boolean(pendingLikes[post._id])}
                 className={`flex items-center justify-center gap-2 py-2.5 hover:bg-[#F0F7FF] rounded-lg ${pendingLikes[post._id] ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
               >
-                <ThumbsUp className="w-5 h-5 text-blue-500" />
-                <span className="text-[14px] font-bold text-gray-700">
+                <ThumbsUp 
+                  className={`w-5 h-5 ${post.liked ? 'text-blue-600' : 'text-gray-500'}`} 
+                  fill={post.liked ? "currentColor" : "none"}
+                />
+                <span className={`text-[14px] font-bold ${post.liked ? 'text-blue-600' : 'text-gray-700'}`}>
                   Like
                 </span>
               </button>

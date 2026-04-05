@@ -22,10 +22,16 @@ export const createPost = async (formData: FormData, token: string) => {
   }
 };
 
-export const getAllPost = async ({ pageParam }: { pageParam?: string }) => {
+export const getAllPost = async ({ pageParam, token }: { pageParam?: string; token?: string }) => {
   try {
+    const headers: any = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
     const res = await fetch(`${API_URL}/post?cursor=${pageParam || ""}`, {
       method: "GET",
+      headers,
     });
 
     const result = await res.json();

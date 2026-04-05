@@ -73,11 +73,15 @@ export const usePost = () => {
 };
 
 export const useGetAllPost = () => {
+  const { data: session } = useSession();
+  const token = (session as any)?.accessToken;
+
   return useInfiniteQuery({
     queryKey: ["allPosts"],
-    queryFn: getAllPost,
+    queryFn: ({ pageParam }) => getAllPost({ pageParam: pageParam as string | undefined, token }),
     getNextPageParam: (lastPage) => lastPage.meta.nextCursor || undefined,
     initialPageParam: undefined,
+    enabled: !!token,
   });
 };
 
