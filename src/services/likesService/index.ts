@@ -78,3 +78,39 @@ export const toggleLikesForCommentReply = async (
 
   return res.data;
 };
+
+
+
+export const getLikesByCommentId = async (commentId: string) => {
+  try {
+    const res = await fetch(`${API_URL}/like/comment/${commentId}`, {
+      method: "GET",
+    });
+    const result = await res.json();
+    if (!res.ok) {
+      throw new Error(result.message || "Failed to get likes");
+    }
+    return result;
+  } catch (error) {
+    console.error("Like error:", error);
+    throw error;
+  }
+};
+
+
+
+export const getLikesByCommentReplyId = async (replyId: string) => {
+  try {
+    const res = await fetch(`${API_URL}/like/reply-comment/${replyId}`, {
+      method: "GET",
+    });
+    const result = await res.json();
+    if (!res.ok) {
+      throw new Error(result.message || "Failed to get likes");
+    }
+    return result;
+  } catch (error) {
+    console.error("Like error:", error);
+    throw error;
+  }
+};

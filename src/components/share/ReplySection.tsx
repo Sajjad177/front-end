@@ -7,6 +7,7 @@ import {
   useGetRepliesByCommentId,
 } from "@/hooks/usecomment";
 import {
+  useGetAllLikesForCommentReply,
   useToggleLikeForComment,
   useToggleLikesForCommentReply,
 } from "@/hooks/useLike";
@@ -15,6 +16,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { Send, ThumbsUp } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import LikesModal from "./LikesModal";
 
 dayjs.extend(relativeTime);
 
@@ -40,6 +42,11 @@ const ReplySection = ({
   const allReplies = repliesData?.pages.flatMap((page: any) => page.data) || [];
   const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
   const { mutateAsync: toggleLike } = useToggleLikeForComment();
+
+  const [showLikesModal, setShowLikesModal] = useState(false);
+  const [likesList, setLikesList] = useState<any[]>([]);
+  const [likesModalLoading, setLikesModalLoading] = useState(false);
+  const { mutateAsync: fetchReplyLikes } = useGetAllLikesForCommentReply();
 
   const sortedReplies = [...allReplies].sort((a, b) =>
     dayjs(b.createdAt).diff(dayjs(a.createdAt)),
@@ -73,6 +80,21 @@ const ReplySection = ({
   const handleShowMore = () =>
     setVisibleCount((prev) => Math.min(prev + 5, sortedReplies.length));
   const handleShowLess = () => setVisibleCount(1);
+
+  const handleShowReplyLikes = async (replyId: string) => {
+    try {
+      setShowLikesModal(true);
+      setLikesModalLoading(true);
+      const res: any = await fetchReplyLikes(replyId);
+      const list = res?.data || [];
+      setLikesList(Array.isArray(list) ? list : []);
+    } catch (error) {
+      console.error("Error fetching reply likes:", error);
+      toast.error("Failed to load likes");
+    } finally {
+      setLikesModalLoading(false);
+    }
+  };
 
   const handelToggleLikeForComment = async () => {
     console.log("DEBUG DATA:", {
@@ -129,11 +151,8 @@ const ReplySection = ({
   };
   return (
     <>
-      {/* Action Row */}
       <div className="flex items-center gap-3 mt-0.5 ml-3 text-[12px] font-semibold text-slate-500">
-        <span className="text-[12px] font-normal text-slate-400 hover:underline cursor-pointer">
-          {dayjs(comment.createdAt).fromNow(true)}
-        </span>
+        
         <button
           onClick={handelToggleLikeForComment}
           className={`flex items-center gap-1 hover:text-blue-600 transition-colors cursor-pointer`}
@@ -149,6 +168,9 @@ const ReplySection = ({
         </button>
 
         <button className="hover:text-blue-600 transition-colors cursor-pointer">Share</button>
+        <span className="text-[12px] font-normal text-slate-400 hover:underline cursor-pointer">
+          {dayjs(comment.createdAt).fromNow(true)}
+        </span>
       </div>
 
       {/* Reply Input */}
@@ -209,7 +231,10 @@ const ReplySection = ({
                 <div className="text-slate-700 mt-0.5 mb-0.5 leading-snug whitespace-pre-wrap">{reply.text}</div>
                 
                 {reply?.replyCommentTotalLikes > 0 && (
-                  <div className="absolute -right-2 -bottom-2.5 flex items-center border border-slate-200 bg-white rounded-full px-1.5 py-[2px] transition-transform hover:scale-105 cursor-pointer">
+                  <div 
+                    onClick={() => handleShowReplyLikes(reply._id)}
+                    className="absolute -right-2 -bottom-2.5 flex items-center border border-slate-200 bg-white rounded-full px-1.5 py-[2px] transition-transform hover:scale-105 cursor-pointer shadow-sm group-hover:border-slate-300"
+                  >
                     <ThumbsUp className="w-[11px] h-[11px] text-blue-500 fill-blue-500" />
                     <span className="text-[11px] ml-1 font-medium text-slate-600">
                       {reply.replyCommentTotalLikes}
@@ -255,6 +280,13 @@ const ReplySection = ({
           </button>
         )}
       </div>
+
+      <LikesModal
+        show={showLikesModal}
+        onClose={() => setShowLikesModal(false)}
+        loading={likesModalLoading}
+        likesList={likesList}
+      />
     </>
   );
 };

@@ -1,17 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  updateCommentInCache,
+  updatePostInCache,
+  updateReplyInCache,
+} from "@/lib/cacheUtils";
+import {
   getAllLikesForPost,
+  getLikesByCommentId,
+  getLikesByCommentReplyId,
   toggleLikesForComment,
   toggleLikesForCommentReply,
   toggleLikesForPost,
 } from "@/services/likesService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import {
-  updatePostInCache,
-  updateCommentInCache,
-  updateReplyInCache,
-} from "@/lib/cacheUtils";
 
 type ToggleLikeVars = {
   postId: string;
@@ -177,5 +179,20 @@ export const useToggleLikesForCommentReply = (token: string) => {
 
       toast.success(data.message || "Like toggled successfully");
     },
+  });
+};
+
+
+
+export const useGetAllLikesForComment = () => {
+  return useMutation({
+    mutationFn: getLikesByCommentId,
+  });
+};
+
+
+export const useGetAllLikesForCommentReply = () => {
+  return useMutation({
+    mutationFn: getLikesByCommentReplyId,
   });
 };

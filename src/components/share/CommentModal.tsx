@@ -4,12 +4,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCommentPost } from "@/hooks/usecomment";
 import { useGetAllCommentByPostId } from "@/hooks/usepost";
+import { useGetAllLikesForComment, useGetAllLikesForCommentReply } from "@/hooks/useLike";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Camera, Mic, Send, ThumbsUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import LikesModal from "./LikesModal";
 
 dayjs.extend(relativeTime);
 
@@ -38,6 +40,12 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
   // Pagination State
   const [visibleCommentsCount, setVisibleCommentsCount] = useState(5);
   const [visibleRepliesCount, setVisibleRepliesCount] = useState<Record<string, number>>({});
+
+  const [showLikesModal, setShowLikesModal] = useState(false);
+  const [likesList, setLikesList] = useState<any[]>([]);
+  const [likesModalLoading, setLikesModalLoading] = useState(false);
+  const { mutateAsync: fetchCommentLikes } = useGetAllLikesForComment();
+  const { mutateAsync: fetchReplyLikes } = useGetAllLikesForCommentReply();
 
   if (!show || !postId) return null;
 
@@ -92,6 +100,21 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
       if (current >= totalReplies) return { ...prev, [commentId]: 0 }; // View less => Hide all
       return { ...prev, [commentId]: current + 5 }; // View more => show +5
     });
+  };
+
+  const handleShowLikesModal = async (id: string, type: 'comment' | 'reply') => {
+    try {
+      setShowLikesModal(true);
+      setLikesModalLoading(true);
+      const res: any = type === 'comment' ? await fetchCommentLikes(id) : await fetchReplyLikes(id);
+      const list = res?.data || [];
+      setLikesList(Array.isArray(list) ? list : []);
+    } catch (error) {
+      console.error(`Error fetching ${type} likes:`, error);
+      toast.error("Failed to load likes");
+    } finally {
+      setLikesModalLoading(false);
+    }
   };
 
   const isAllShown = visibleCommentsCount >= sortedComments.length && !hasNextPage;
@@ -171,7 +194,10 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
                         </p>
 
                         {comment.commentTotalLikes > 0 && (
-                          <div className="absolute -right-2 -bottom-2.5 flex items-center bg-white border border-slate-200 rounded-full px-1.5 py-[2px] shadow-sm">
+                          <div 
+                            onClick={() => handleShowLikesModal(comment._id, 'comment')}
+                            className="absolute -right-2 -bottom-2.5 flex items-center bg-white border border-slate-200 rounded-full px-1.5 py-[2px] cursor-pointer shadow-sm group-hover:border-slate-300 transition-transform hover:scale-105"
+                          >
                             <ThumbsUp className="w-[11px] h-[11px] text-blue-500 fill-blue-500" />
                             <span className="text-[11px] ml-1 font-medium text-slate-600">
                               {comment.commentTotalLikes}
@@ -203,7 +229,10 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
                                 <div className="text-slate-700 mt-0.5 mb-0.5 leading-snug whitespace-pre-wrap">{reply.text}</div>
                                 
                                 {reply.replyCommentTotalLikes > 0 && (
-                                  <div className="absolute -right-2 -bottom-2.5 flex items-center border border-slate-200 bg-white shadow-sm rounded-full px-1.5 py-[2px]">
+                                  <div 
+                                    onClick={() => handleShowLikesModal(reply._id, 'reply')}
+                                    className="absolute -right-2 -bottom-2.5 flex items-center border border-slate-200 bg-white shadow-sm rounded-full px-1.5 py-[2px] cursor-pointer group-hover:border-slate-300 transition-transform hover:scale-105"
+                                  >
                                     <ThumbsUp className="w-[11px] h-[11px] text-blue-500 fill-blue-500" />
                                     <span className="text-[11px] ml-1 font-medium text-slate-600">
                                       {reply.replyCommentTotalLikes}
@@ -297,6 +326,13 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
           </div>
         </div>
       </div>
+
+      <LikesModal
+        show={showLikesModal}
+        onClose={() => setShowLikesModal(false)}
+        loading={likesModalLoading}
+        likesList={likesList}
+      />
     </div>
   );
 };

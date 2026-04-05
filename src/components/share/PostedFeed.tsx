@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import CommentModal from "./CommentModal";
 import CommentSection from "./CommentSection";
 import LikesModal from "./LikesModal";
+import PostOptions from "./PostOptions";
 import PostSkeleton from "./PostSkeleton";
 
 dayjs.extend(relativeTime);
@@ -131,9 +132,7 @@ const PostedFeed = () => {
                   </span>
                 </div>
               </div>
-              <button className="text-gray-400 hover:bg-gray-50 p-1.5 rounded-full">
-                <MoreHorizontal className="w-5 h-5 cursor-pointer" />
-              </button>
+              <PostOptions postId={post._id} />
             </div>
             {/* Content & Images */}
             <div className="px-4 pb-3">

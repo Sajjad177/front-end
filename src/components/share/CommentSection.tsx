@@ -12,6 +12,9 @@ import ReplySection from "./ReplySection";
 
 dayjs.extend(relativeTime);
 
+import { useGetAllLikesForComment } from "@/hooks/useLike";
+import LikesModal from "./LikesModal";
+
 const CommentSection = ({
   postId,
   session,
@@ -24,6 +27,11 @@ const CommentSection = ({
   const [commentInput, setCommentInput] = useState("");
   const [visibleCount, setVisibleCount] = useState(1);
   const { data: commentsData } = useGetCommentByPostId(postId);
+
+  const [showLikesModal, setShowLikesModal] = useState(false);
+  const [likesList, setLikesList] = useState<any[]>([]);
+  const [likesModalLoading, setLikesModalLoading] = useState(false);
+  const { mutateAsync: fetchCommentLikes } = useGetAllLikesForComment();
 
   const allComments =
     commentsData?.pages.flatMap((page: any) => page.data) || [];
@@ -60,6 +68,21 @@ const CommentSection = ({
 
   const handleShowLess = () => {
     setVisibleCount(1);
+  };
+
+  const handleShowCommentLikes = async (commentId: string) => {
+    try {
+      setShowLikesModal(true);
+      setLikesModalLoading(true);
+      const res: any = await fetchCommentLikes(commentId);
+      const list = res?.data || [];
+      setLikesList(Array.isArray(list) ? list : []);
+    } catch (error) {
+      console.error("Error fetching comment likes:", error);
+      toast.error("Failed to load likes");
+    } finally {
+      setLikesModalLoading(false);
+    }
   };
 
   return (
@@ -141,7 +164,10 @@ const CommentSection = ({
 
                 {/* Reaction Badge */}
                 {comment.commentTotalLikes > 0 && (
-                  <div className="absolute -right-2 -bottom-2.5 flex items-center bg-white border border-slate-200 rounded-full px-1.5 py-[2px] transition-transform hover:scale-105 cursor-pointer">
+                  <div 
+                    onClick={() => handleShowCommentLikes(comment._id)}
+                    className="absolute -right-2 -bottom-2.5 flex items-center bg-white border border-slate-200 rounded-full px-1.5 py-[2px] transition-transform hover:scale-105 cursor-pointer shadow-sm group-hover:border-slate-300"
+                  >
                     <ThumbsUp className="w-[11px] h-[11px] text-blue-500 fill-blue-500" />
                     <span className="text-[11px] ml-1 font-medium text-slate-600">
                       {comment.commentTotalLikes}
@@ -151,18 +177,23 @@ const CommentSection = ({
               </div>
 
               <div className="mt-1.5">
-
-
-              <ReplySection
-                comment={comment}
-                session={session}
-                postId={postId}
-              />
+                <ReplySection
+                  comment={comment}
+                  session={session}
+                  postId={postId}
+                />
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      <LikesModal
+        show={showLikesModal}
+        onClose={() => setShowLikesModal(false)}
+        loading={likesModalLoading}
+        likesList={likesList}
+      />
     </div>
   );
 };
