@@ -2,8 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCommentPost } from "@/hooks/usecomment";
-import { useGetAllCommentByPostId } from "@/hooks/usepost";
+import { useCommentPost, useGetCommentByPostId } from "@/hooks/usecomment";
 import { useGetAllLikesForComment, useGetAllLikesForCommentReply } from "@/hooks/useLike";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -30,9 +29,7 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
     isLoading,
     fetchNextPage,
     hasNextPage
-  } = useGetAllCommentByPostId({ 
-    postId: postId || "" 
-  });
+  } = useGetCommentByPostId(postId || "");
   
   const { mutate: commentPost } = useCommentPost();
   const [commentInput, setCommentInput] = useState("");
@@ -217,15 +214,16 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
                 return (
                   <div key={comment._id} className="flex gap-3 group">
                     <Avatar className="h-8 w-8 shrink-0">
+                      <AvatarImage src={comment.authorId?.avatar} />
                       <AvatarFallback className="uppercase text-[12px] font-semibold bg-[#e9f2ff] text-[#007AFF]">
-                        {`${comment.user?.firstName?.charAt(0) || "U"}${comment.user?.lastName?.charAt(0) || ""}`}
+                        {`${comment.authorId?.firstName?.charAt(0) || "U"}${comment.authorId?.lastName?.charAt(0) || ""}`}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
                       {/* Comment bubble */}
                       <div className="bg-slate-100 rounded-2xl px-3.5 py-2 inline-block max-w-[92%] relative border border-slate-200/50 mb-0.5">
                         <h5 className="text-[13px] font-semibold text-slate-800 leading-tight">
-                          {comment.user?.firstName} {comment.user?.lastName}
+                          {comment.authorId?.firstName} {comment.authorId?.lastName}
                         </h5>
                         <p className="text-[14px] text-slate-700 mt-0.5 mb-0.5 whitespace-pre-wrap leading-snug">
                           {renderText(comment.text, comment._id)}
@@ -255,14 +253,15 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
                         {displayedReplies.map((reply: any) => (
                           <div key={reply._id} className="flex gap-2.5 group">
                             <Avatar className="h-6 w-6 shrink-0 mt-0.5">
+                              <AvatarImage src={reply.authorId?.avatar} />
                               <AvatarFallback className="uppercase text-[10px] font-semibold bg-gray-200">
-                                {`${reply.user?.firstName?.charAt(0) || "U"}${reply.user?.lastName?.charAt(0) || ""}`}
+                                {`${reply.authorId?.firstName?.charAt(0) || "U"}${reply.authorId?.lastName?.charAt(0) || ""}`}
                               </AvatarFallback>
                             </Avatar>
                             <div className="flex-1">
                               <div className="bg-slate-100 border border-slate-200/50 px-3.5 py-2 rounded-2xl text-[13px] inline-block max-w-[95%] relative mb-0.5">
                                 <div className="font-semibold text-slate-800 leading-tight">
-                                  {reply.user?.firstName} {reply.user?.lastName}
+                                  {reply.authorId?.firstName} {reply.authorId?.lastName}
                                 </div>
                                 <div className="text-slate-700 mt-0.5 mb-0.5 leading-snug whitespace-pre-wrap">
                                   {renderText(reply.text, reply._id)}
