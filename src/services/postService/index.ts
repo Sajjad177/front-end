@@ -37,3 +37,21 @@ export const getAllPost = async ({ pageParam }: { pageParam?: string }) => {
     throw error;
   }
 };
+
+
+
+export const getAllCommentByPostId = async ({ postId, pageParam = 1 }: { postId: string, pageParam?: number }) => {
+  try {
+    const res = await fetch(`${API_URL}/post/comments/${postId}?page=${pageParam}&limit=5`, {
+      method: "GET",
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || "Failed to fetch comments");
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    throw error;
+  }
+};
