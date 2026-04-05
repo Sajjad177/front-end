@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const createComment = async (data: any, token: string) => {
