@@ -120,10 +120,10 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
   const isAllShown = visibleCommentsCount >= sortedComments.length && !hasNextPage;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-modal-fade">
-      <div className="w-full max-w-lg bg-white rounded-xl p-0 animate-modal-scale flex flex-col max-h-[85vh] shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 animate-modal-fade">
+      <div className="w-full max-w-lg bg-white rounded-xl p-0 animate-modal-scale flex flex-col max-h-[85vh] shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between p-4 border-b shrink-0">
           <h3 className="text-lg font-bold text-gray-800">Comments</h3>
           <button
             onClick={onClose}

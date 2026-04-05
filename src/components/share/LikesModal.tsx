@@ -16,9 +16,9 @@ const LikesModal = ({ show, onClose, loading, likesList }: LikesModalProps) => {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-modal-fade">
-      <div className="w-full max-w-md bg-white rounded-lg p-4 animate-modal-scale">
-        <div className="flex items-center justify-between mb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/40 animate-modal-fade">
+      <div className="w-full max-w-md bg-white rounded-lg p-4 animate-modal-scale flex flex-col max-h-[85vh] overflow-hidden">
+        <div className="flex items-center justify-between mb-3 shrink-0">
           <div className="flex gap-1">
             <ThumbsUp className="w-5 h-5 text-blue-500" />
             <span className="font-semibold">{likesList.length}</span>

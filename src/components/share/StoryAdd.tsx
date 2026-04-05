@@ -74,7 +74,7 @@ const StoryAdd = () => {
         ))}
       </div>
 
-      <button className="lg:group-hover:flex absolute right-[-12px] top-1/2 -translate-y-1/2 bg-[#007AFF] text-white p-1.5 rounded-full shadow-xl z-20 transition-all hover:bg-blue-600">
+      <button className="hidden sm:flex absolute right-[-12px] top-1/2 -translate-y-1/2 bg-[#007AFF] text-white p-1.5 rounded-full shadow-xl z-20 transition-all hover:bg-blue-600">
         <ChevronRight className="w-5 h-5" />
       </button>
     </div>

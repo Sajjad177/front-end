@@ -206,8 +206,13 @@ const PostedFeed = () => {
                 </span>
               </div>
               <div className="flex items-center gap-3 text-[13px] text-gray-500">
-                <span>{post.totalComments} Comment</span>
-                <span>Share</span>
+                <span 
+                  onClick={() => setActiveCommentPostId(post._id)}
+                  className="cursor-pointer hover:underline"
+                >
+                  {post.totalComments} Comment
+                </span>
+                <span className="cursor-pointer hover:underline">Share</span>
               </div>
               {/* Likes Modal */}
               <LikesModal
