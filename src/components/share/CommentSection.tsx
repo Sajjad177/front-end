@@ -98,11 +98,11 @@ const CommentSection = ({
               ? handleShowLess
               : handleShowMore
           }
-          className="text-[13px] font-semibold text-gray-600 hover:underline cursor-pointer px-1"
+          className="text-[13px] cursor-pointer font-semibold text-slate-500 hover:text-slate-800 transition-colors py-1 flex items-center gap-2 group w-fit ml-1"
         >
           {visibleCount >= sortedComments.length
-            ? "View less comments"
-            : `View ${sortedComments.length - visibleCount} previous comments`}
+            ? "Hide previous comments"
+            : `View ${sortedComments.length - visibleCount} previous ${sortedComments.length - visibleCount === 1 ? 'comment' : 'comments'}`}
         </button>
       )}
 

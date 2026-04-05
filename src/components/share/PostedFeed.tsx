@@ -6,7 +6,7 @@ import { useGetAllLikesForPost, useToggleLikeForPost } from "@/hooks/useLike";
 import { useGetAllPost } from "@/hooks/usepost";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { MessageSquare, MoreHorizontal, Share2, ThumbsUp } from "lucide-react";
+import { Loader2, MessageSquare, MoreHorizontal, Share2, ThumbsUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
@@ -261,13 +261,20 @@ const PostedFeed = () => {
 
       {/* Main Load More Button */}
       {hasNextPage && (
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mt-6 mb-8 px-4">
           <button
-            className="px-4 py-2 rounded-lg cursor-pointer bg-blue-500 text-white"
             onClick={handleLoadMore}
             disabled={isFetchingNextPage}
+            className="flex items-center justify-center gap-2 px-8 py-2 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold text-[14px] transition-colors disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
           >
-            {isFetchingNextPage ? "Loading..." : "show more"}
+            {isFetchingNextPage ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
+                <span>Loading more posts...</span>
+              </>
+            ) : (
+              <span>Show more posts</span>
+            )}
           </button>
         </div>
       )}

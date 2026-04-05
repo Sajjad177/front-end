@@ -236,11 +236,12 @@ const ReplySection = ({
                 ? handleShowLess
                 : handleShowMore
             }
-            className="text-[12px] font-semibold text-slate-500 cursor-pointer hover:text-slate-700 hover:underline transition-colors ml-6"
+            className="flex cursor-pointer items-center gap-2 text-[12px] font-semibold text-slate-500 hover:text-slate-800 transition-colors ml-6 mt-1 mb-1 group"
           >
+            <div className="w-5 h-[1px] bg-slate-300 group-hover:bg-slate-400 transition-colors" />
             {visibleCount >= sortedReplies.length
-              ? "View less replies"
-              : `View ${Math.max(0, sortedReplies.length - visibleCount)} more replies`}
+              ? "Hide replies"
+              : `View ${Math.max(0, sortedReplies.length - visibleCount)} more ${Math.max(0, sortedReplies.length - visibleCount) === 1 ? 'reply' : 'replies'}`}
           </button>
         )}
       </div>

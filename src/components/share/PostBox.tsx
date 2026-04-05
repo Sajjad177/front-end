@@ -7,10 +7,9 @@ import {
   Calendar,
   FileText,
   Image as ImageIcon,
-  Pencil,
   Send,
   Video,
-  X,
+  X
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
@@ -105,7 +104,7 @@ const PostBox = () => {
     <div
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      className="bg-white rounded-sm p-4 w-full"
+      className="bg-white rounded-2xl border border-slate-200/60 p-4 w-full"
     >
       <div className="flex items-start gap-3 mb-4">
         <Avatar className="h-10 w-10 border shrink-0">
@@ -113,19 +112,19 @@ const PostBox = () => {
           <AvatarFallback>DF</AvatarFallback>
         </Avatar>
 
-        <div className="flex-1">
-          <div className="flex items-center">
-            <input
-              type="text"
-              placeholder="Write something ..."
+        <div className="flex-1 mt-1">
+          <div className="flex items-start">
+            <textarea
+              placeholder="What's on your mind?..."
               value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="w-full bg-transparent py-2 text-[18px] text-gray-600 focus:outline-none placeholder:text-gray-400"
+              onChange={(e) => {
+                setText(e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = `${e.target.scrollHeight}px`;
+              }}
+              rows={Math.max(1, text.split("\n").length)}
+              className="w-full bg-transparent py-1 text-[16px] text-slate-700 focus:outline-none placeholder:text-slate-400 resize-none overflow-y-auto min-h-[40px] max-h-[260px] leading-relaxed"
             />
-            <div className="flex flex-col items-center justify-center text-gray-400">
-              <Pencil className="w-5 h-5" />
-              <div className="w-4 h-[2px] bg-gray-300 mt-[-2px]" />
-            </div>
           </div>
 
           {selectedImages.length > 0 && (
@@ -139,9 +138,9 @@ const PostBox = () => {
                   />
                   <button
                     onClick={() => removeImage(image.id)}
-                    className="absolute -top-1 -right-1 bg-gray-900/80 text-white p-0.5 rounded-full hover:bg-red-500 transition-colors shadow-lg cursor-pointer"
+                    className="absolute -top-1.5 -right-1.5 bg-slate-800 text-white p-0.5 rounded-full hover:bg-red-500 transition-colors cursor-pointer border-2 border-white"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
@@ -206,10 +205,11 @@ const PostBox = () => {
 
         <button
           onClick={handlePost}
-          className="bg-[#007AFF] text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold text-sm hover:bg-blue-600 transition-all cursor-pointer"
+          disabled={!text.trim() && selectedImages.length === 0}
+          className="bg-blue-500 text-white px-6 py-2 rounded-full flex items-center gap-2 font-semibold text-[14px] hover:bg-blue-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Send className="w-4 h-4 rotate-[-45deg] mb-1" />
-          Post
+          <Send className="w-3.5 h-3.5" />
+          <span>Post</span>
         </button>
       </div>
     </div>
