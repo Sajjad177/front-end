@@ -43,6 +43,8 @@ const ReplySection = ({
   const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
   const { mutateAsync: toggleLike } = useToggleLikeForComment();
 
+  const [expandedText, setExpandedText] = useState<Record<string, boolean>>({});
+
   const [showLikesModal, setShowLikesModal] = useState(false);
   const [likesList, setLikesList] = useState<any[]>([]);
   const [likesModalLoading, setLikesModalLoading] = useState(false);
@@ -94,6 +96,42 @@ const ReplySection = ({
     } finally {
       setLikesModalLoading(false);
     }
+  };
+
+  const toggleExpandText = (id: string) => {
+    setExpandedText((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const renderText = (text: string, id: string) => {
+    if (!text) return null;
+    const words = text.split(/\s+/);
+    if (words.length <= 40) return text;
+
+    if (expandedText[id]) {
+      return (
+        <>
+          {text}
+          <button
+            onClick={() => toggleExpandText(id)}
+            className="text-blue-600 font-semibold ml-1 hover:underline cursor-pointer"
+          >
+            view less
+          </button>
+        </>
+      );
+    }
+
+    return (
+      <>
+        {words.slice(0, 40).join(" ")}...
+        <button
+          onClick={() => toggleExpandText(id)}
+          className="text-blue-600 font-semibold ml-1 hover:underline cursor-pointer"
+        >
+          see more
+        </button>
+      </>
+    );
   };
 
   const handelToggleLikeForComment = async () => {
@@ -228,7 +266,9 @@ const ReplySection = ({
                 <div className="font-semibold text-slate-800 leading-tight">
                   {reply.authorId?.firstName} {reply.authorId?.lastName}
                 </div>
-                <div className="text-slate-700 mt-0.5 mb-0.5 leading-snug whitespace-pre-wrap">{reply.text}</div>
+                <div className="text-slate-700 mt-0.5 mb-0.5 leading-snug whitespace-pre-wrap">
+                  {renderText(reply.text, reply._id)}
+                </div>
                 
                 {reply?.replyCommentTotalLikes > 0 && (
                   <div 

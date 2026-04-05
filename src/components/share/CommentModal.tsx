@@ -41,6 +41,8 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
   const [visibleCommentsCount, setVisibleCommentsCount] = useState(5);
   const [visibleRepliesCount, setVisibleRepliesCount] = useState<Record<string, number>>({});
 
+  const [expandedText, setExpandedText] = useState<Record<string, boolean>>({});
+
   const [showLikesModal, setShowLikesModal] = useState(false);
   const [likesList, setLikesList] = useState<any[]>([]);
   const [likesModalLoading, setLikesModalLoading] = useState(false);
@@ -117,6 +119,42 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
     }
   };
 
+  const toggleExpandText = (id: string) => {
+    setExpandedText((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const renderText = (text: string, id: string) => {
+    if (!text) return null;
+    const words = text.split(/\s+/);
+    if (words.length <= 40) return text;
+
+    if (expandedText[id]) {
+      return (
+        <>
+          {text}
+          <button
+            onClick={() => toggleExpandText(id)}
+            className="text-blue-600 font-semibold ml-1 hover:underline cursor-pointer"
+          >
+            view less
+          </button>
+        </>
+      );
+    }
+
+    return (
+      <>
+        {words.slice(0, 40).join(" ")}...
+        <button
+          onClick={() => toggleExpandText(id)}
+          className="text-blue-600 font-semibold ml-1 hover:underline cursor-pointer"
+        >
+          see more
+        </button>
+      </>
+    );
+  };
+
   const isAllShown = visibleCommentsCount >= sortedComments.length && !hasNextPage;
 
   return (
@@ -190,7 +228,7 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
                           {comment.user?.firstName} {comment.user?.lastName}
                         </h5>
                         <p className="text-[14px] text-slate-700 mt-0.5 mb-0.5 whitespace-pre-wrap leading-snug">
-                          {comment.text}
+                          {renderText(comment.text, comment._id)}
                         </p>
 
                         {comment.commentTotalLikes > 0 && (
@@ -226,7 +264,9 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
                                 <div className="font-semibold text-slate-800 leading-tight">
                                   {reply.user?.firstName} {reply.user?.lastName}
                                 </div>
-                                <div className="text-slate-700 mt-0.5 mb-0.5 leading-snug whitespace-pre-wrap">{reply.text}</div>
+                                <div className="text-slate-700 mt-0.5 mb-0.5 leading-snug whitespace-pre-wrap">
+                                  {renderText(reply.text, reply._id)}
+                                </div>
                                 
                                 {reply.replyCommentTotalLikes > 0 && (
                                   <div 
