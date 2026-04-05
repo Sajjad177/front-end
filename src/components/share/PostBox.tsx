@@ -149,7 +149,7 @@ const PostBox = () => {
         </div>
       </div>
 
-      <div className="bg-[#F8FAFC] rounded-lg p-2 flex flex-wrap items-center justify-between gap-2">
+      <div className="bg-[#f3f9ff] rounded-lg p-2 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center sm:gap-4">
           <input
             type="file"
@@ -206,7 +206,7 @@ const PostBox = () => {
         <button
           onClick={handlePost}
           disabled={!text.trim() && selectedImages.length === 0}
-          className="bg-blue-500 text-white px-6 py-2 rounded-full flex items-center gap-2 font-semibold text-[14px] hover:bg-blue-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-blue-500 text-white px-6 py-2 rounded-sm flex items-center gap-2 font-semibold text-[14px] hover:bg-blue-600 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Send className="w-3.5 h-3.5" />
           <span>Post</span>
