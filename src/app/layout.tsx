@@ -1,14 +1,14 @@
 import Provider from "@/providers/Providers";
 import QueryProvider from "@/providers/QueryProvider";
 import type { Metadata } from "next";
-import { Roboto_Condensed } from "next/font/google";
+import { Roboto } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
-const robotoCondensed = Roboto_Condensed({
+const roboto = Roboto({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
-  variable: "--font-roboto-condensed",
+  weight: ["300", "400", "500", "700", "900"],
+  variable: "--font-roboto",
 });
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${robotoCondensed.variable}  font-sans antialiased`}>
+      <body className={`${roboto.variable} font-sans antialiased`}>
         <QueryProvider>
           <Provider>{children}</Provider>
           <Toaster position="top-center" reverseOrder={false} />
