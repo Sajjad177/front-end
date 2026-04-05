@@ -25,7 +25,8 @@ export const usePost = () => {
       const { formData, token } = vars;
       return createPost(formData, token ?? "");
     },
-    onSuccess: (newPost) => {
+    onSuccess: (newPost, vars) => {
+      const formVisibility = vars.formData.get("visibility");
       const post = newPost?.data || newPost?.post || newPost;
 
       const enrichedPost: any = { ...post };
@@ -49,7 +50,7 @@ export const usePost = () => {
         ? { ...enrichedPost, __pending: true }
         : enrichedPost;
 
-      if (postToInsert.visibility !== "private") {
+      if (formVisibility !== "private" && postToInsert.visibility !== "private") {
         queryClient.setQueryData(["allPosts"], (oldData: any) => {
           if (!oldData) return oldData;
 
