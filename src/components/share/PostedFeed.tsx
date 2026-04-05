@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import CommentSection from "./CommentSection";
+import LikesModal from "./LikesModal";
 
 dayjs.extend(relativeTime);
 
@@ -28,7 +29,11 @@ const PostedFeed = () => {
   const { mutate: toggleLike } = useToggleLikeForPost();
   const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});
 
-  const { data: likesData } = useGetAllLikesForPost();
+  const { mutateAsync: fetchLikes } = useGetAllLikesForPost();
+  const [showLikesModal, setShowLikesModal] = useState(false);
+  const [likesList, setLikesList] = useState<any[]>([]);
+  const [likesModalLoading, setLikesModalLoading] = useState(false);
+
 
   const handleLoadMore = () => {
     if (hasNextPage) fetchNextPage();
@@ -65,6 +70,23 @@ const PostedFeed = () => {
         },
       },
     );
+  };
+
+  const handleToggleLikesModal = async (postId: string) => {
+    try {
+      setLikesModalLoading(true);
+      const res: any = await fetchLikes(postId);
+
+      const list = res?.data || [];
+      setLikesList(Array.isArray(list) ? list : []);
+
+      setShowLikesModal(true);
+    } catch (error) {
+      console.error("Error fetching likes:", error);
+      toast.error("Failed to load likes");
+    } finally {
+      setLikesModalLoading(false);
+    }
   };
 
   return (
@@ -159,14 +181,17 @@ const PostedFeed = () => {
             {/* Stats */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
               <div className="flex items-center -space-x-2">
-                <div className="flex items-center justify-center gap-2 py-2.5 rounded-lg cursor-pointer">
+                <hr className="hover:flex border border-red-500" />
+                <button className="flex items-center justify-center gap-2 py-2.5 rounded-lg cursor-pointer ">
                   <ThumbsUp className="w-5 h-5 text-blue-500" />
                   <span className="text-[14px] font-bold text-gray-700">
                     Like
                   </span>
-                </div>
-
-                <span className="pl-4 text-[13px] text-gray-500 font-medium">
+                </button>
+                <span
+                  onClick={() => handleToggleLikesModal(post._id)}
+                  className="text-[14px] font-bold text-gray-700 cursor-pointer hover:underline ml-3"
+                >
                   {post.totalLikes}+
                 </span>
               </div>
@@ -174,6 +199,13 @@ const PostedFeed = () => {
                 <span>{post.totalComments} Comment</span>
                 <span>Share</span>
               </div>
+              {/* Likes Modal */}
+              <LikesModal
+                show={showLikesModal}
+                onClose={() => setShowLikesModal(false)}
+                loading={likesModalLoading}
+                likesList={likesList}
+              />
             </div>
 
             {/* Actions */}

@@ -78,7 +78,6 @@ export const useToggleLikeForComment = () => {
 
   return useMutation({
     mutationFn: async ({ commentId, token, postId }: ToggleCommentVars) => {
-      // Prefer provided postId, otherwise try to find it in the allPosts cache
       let parentId = postId;
       if (!parentId) {
         const allPosts = queryClient.getQueryData(["allPosts"]) as any;
@@ -98,7 +97,6 @@ export const useToggleLikeForComment = () => {
       return toggleLikesForComment(commentId, parentId ?? "", token ?? "");
     },
 
-    // Optimistic Update
     onMutate: async ({ commentId }) => {
       await queryClient.cancelQueries({ queryKey: ["allPosts"] });
 
@@ -131,17 +129,13 @@ export const useToggleLikeForComment = () => {
 
       return { previousData };
     },
-
-    // Rollback if error
     onError: (err: any, _vars, context) => {
       if (context?.previousData) {
         queryClient.setQueryData(["allPosts"], context.previousData);
       }
-      console.log(err);
       toast.error(err?.message || "Failed to toggle like");
     },
 
-    // Sync with backend
     onSuccess: (res, { commentId }) => {
       const apiLiked = res?.data?.liked;
 
