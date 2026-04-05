@@ -26,7 +26,7 @@ const PostedFeed = () => {
     useGetAllPost();
   const { data: session } = useSession();
   const token = session?.accessToken;
-  const postData = data?.pages.flatMap((page: any) => page.data) || [];
+  const postData = (data?.pages.flatMap((page: any) => page.data) || []).filter((post: any) => post?.visibility !== "private");
 
   const { mutate: toggleLike } = useToggleLikeForPost();
   const [pendingLikes, setPendingLikes] = useState<Record<string, boolean>>({});

@@ -49,16 +49,18 @@ export const usePost = () => {
         ? { ...enrichedPost, __pending: true }
         : enrichedPost;
 
-      queryClient.setQueryData(["allPosts"], (oldData: any) => {
-        if (!oldData) return oldData;
+      if (postToInsert.visibility !== "private") {
+        queryClient.setQueryData(["allPosts"], (oldData: any) => {
+          if (!oldData) return oldData;
 
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page: any, idx: number) =>
-            idx === 0 ? { ...page, data: [postToInsert, ...page.data] } : page,
-          ),
-        };
-      });
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page: any, idx: number) =>
+              idx === 0 ? { ...page, data: [postToInsert, ...page.data] } : page,
+            ),
+          };
+        });
+      }
 
       if (isIncomplete) {
         setTimeout(
