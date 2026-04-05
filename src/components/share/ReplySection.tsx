@@ -116,7 +116,7 @@ const ReplySection = ({
     setPendingReplyCommentLikes((p) => ({ ...p, [replyId]: true }));
 
     toggleReplyLike(
-      { replyId, postId, token: session.accessToken },
+      { replyId, postId, commentId: comment._id, token: session.accessToken },
       {
         onSettled: () => {
           setPendingReplyCommentLikes((p) => {

@@ -7,6 +7,11 @@ import {
 } from "@/services/likesService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import {
+  updatePostInCache,
+  updateCommentInCache,
+  updateReplyInCache,
+} from "@/lib/cacheUtils";
 
 type ToggleLikeVars = {
   postId: string;
@@ -22,41 +27,39 @@ export const useToggleLikeForPost = () => {
       const { postId, token } = vars;
       return toggleLikesForPost(postId, token ?? "");
     },
-    onSuccess: (res, vars) => {
-      const postId = vars.postId;
+    onMutate: async ({ postId }) => {
+      await queryClient.cancelQueries({ queryKey: ["allPosts"] });
+      const previousData = queryClient.getQueryData(["allPosts"]);
 
-      queryClient.setQueryData(["allPosts"], (oldData: any) => {
-        if (!oldData) return oldData;
+      updatePostInCache(queryClient, postId, (post) => {
+        const currentlyLiked = Boolean(post.liked);
+        const newLiked = !currentlyLiked;
+        const newTotal = (post.totalLikes || 0) + (newLiked ? 1 : -1);
 
         return {
-          ...oldData,
-          pages: oldData.pages.map((page: any) => ({
-            ...page,
-            data: page.data.map((post: any) => {
-              if (post._id !== postId) return post;
-
-              const apiTotal =
-                (res as any)?.totalLikes ?? (res as any)?.likesCount;
-              const apiLiked = (res as any)?.liked ?? (res as any)?.isLiked;
-
-              const currentlyLiked = Boolean(post.liked);
-              const newLiked =
-                typeof apiLiked === "boolean" ? apiLiked : !currentlyLiked;
-              const newTotal =
-                typeof apiTotal === "number"
-                  ? apiTotal
-                  : (post.totalLikes || 0) +
-                    (newLiked ? 1 : -1) * (currentlyLiked === newLiked ? 0 : 1);
-
-              return {
-                ...post,
-                liked: newLiked,
-                totalLikes: newTotal,
-              };
-            }),
-          })),
+          ...post,
+          liked: newLiked,
+          totalLikes: newTotal,
         };
       });
+
+      return { previousData };
+    },
+    onError: (err: any, _vars, context: any) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(["allPosts"], context.previousData);
+      }
+      toast.error(err?.message || "Failed to toggle like");
+    },
+    onSuccess: (res: any, { postId }) => {
+      const apiTotal = res?.totalLikes ?? res?.likesCount;
+      const apiLiked = res?.liked ?? res?.isLiked;
+
+      updatePostInCache(queryClient, postId, (post) => ({
+        ...post,
+        liked: typeof apiLiked === "boolean" ? apiLiked : post.liked,
+        totalLikes: typeof apiTotal === "number" ? apiTotal : post.totalLikes,
+      }));
     },
   });
 };
@@ -78,88 +81,44 @@ export const useToggleLikeForComment = () => {
 
   return useMutation({
     mutationFn: async ({ commentId, token, postId }: ToggleCommentVars) => {
-      let parentId = postId;
-      if (!parentId) {
-        const allPosts = queryClient.getQueryData(["allPosts"]) as any;
-        if (allPosts) {
-          for (const page of allPosts.pages) {
-            for (const post of page.data) {
-              if (post.comments?.some((c: any) => c._id === commentId)) {
-                parentId = post._id;
-                break;
-              }
-            }
-            if (parentId) break;
-          }
-        }
+      return toggleLikesForComment(commentId, postId, token);
+    },
+    onMutate: async ({ commentId, postId }) => {
+      await queryClient.cancelQueries({ queryKey: ["allPosts"] });
+      if (postId) {
+        await queryClient.cancelQueries({ queryKey: ["commentsByPostId", postId] });
       }
 
-      return toggleLikesForComment(commentId, parentId ?? "", token ?? "");
-    },
-
-    onMutate: async ({ commentId }) => {
-      await queryClient.cancelQueries({ queryKey: ["allPosts"] });
-
       const previousData = queryClient.getQueryData(["allPosts"]);
+      const previousComments = postId ? queryClient.getQueryData(["commentsByPostId", postId]) : undefined;
 
-      queryClient.setQueryData(["allPosts"], (oldData: any) => {
-        if (!oldData) return oldData;
-
+      updateCommentInCache(queryClient, postId, commentId, (c) => {
+        const liked = !c.liked;
         return {
-          ...oldData,
-          pages: oldData.pages.map((page: any) => ({
-            ...page,
-            data: page.data.map((post: any) => ({
-              ...post,
-              comments: post.comments?.map((c: any) => {
-                if (c._id !== commentId) return c;
-
-                const liked = !c.liked;
-                return {
-                  ...c,
-                  liked,
-                  commentTotalLikes:
-                    (c.commentTotalLikes || 0) + (liked ? 1 : -1),
-                };
-              }),
-            })),
-          })),
+          ...c,
+          liked,
+          commentTotalLikes: (c.commentTotalLikes || 0) + (liked ? 1 : -1),
         };
       });
 
-      return { previousData };
+      return { previousData, previousComments, postId };
     },
-    onError: (err: any, _vars, context) => {
+    onError: (err: any, _vars, context: any) => {
       if (context?.previousData) {
         queryClient.setQueryData(["allPosts"], context.previousData);
       }
+      if (context?.previousComments && context.postId) {
+        queryClient.setQueryData(["commentsByPostId", context.postId], context.previousComments);
+      }
       toast.error(err?.message || "Failed to toggle like");
     },
-
-    onSuccess: (res, { commentId }) => {
+    onSuccess: (res: any, { commentId, postId }) => {
       const apiLiked = res?.data?.liked;
 
-      queryClient.setQueryData(["allPosts"], (oldData: any) => {
-        if (!oldData) return oldData;
-
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page: any) => ({
-            ...page,
-            data: page.data.map((post: any) => ({
-              ...post,
-              comments: post.comments?.map((c: any) => {
-                if (c._id !== commentId) return c;
-
-                return {
-                  ...c,
-                  liked: apiLiked,
-                };
-              }),
-            })),
-          })),
-        };
-      });
+      updateCommentInCache(queryClient, postId, commentId, (c) => ({
+        ...c,
+        liked: apiLiked !== undefined ? apiLiked : c.liked,
+      }));
 
       toast.success(res.message || "Updated");
     },
@@ -170,6 +129,7 @@ type ToggleCommentReplyVars = {
   replyId: string;
   token?: string;
   postId?: string;
+  commentId?: string;
 };
 
 export const useToggleLikesForCommentReply = (token: string) => {
@@ -182,21 +142,40 @@ export const useToggleLikesForCommentReply = (token: string) => {
         vars.token ?? token ?? "",
         vars.postId ?? "",
       ),
-    onSuccess: (data, vars) => {
-      // Refresh the comment replies query for the parent post (if we have postId)
-      if (vars.postId) {
-        queryClient.invalidateQueries({
-          queryKey: ["commentReplies", vars.postId],
-        });
-      } else {
-        queryClient.invalidateQueries({ queryKey: ["commentReplies"] });
-      }
+    onMutate: async ({ replyId, commentId }) => {
+      if (!commentId) return {};
 
-      toast.success((data as any).message || "Like toggled successfully");
+      await queryClient.cancelQueries({ queryKey: ["repliesByCommentId", commentId] });
+      const previousReplies = queryClient.getQueryData(["repliesByCommentId", commentId]);
+
+      updateReplyInCache(queryClient, commentId, replyId, (r) => {
+        const liked = !r.liked;
+        return {
+          ...r,
+          liked,
+          replyCommentTotalLikes: (r.replyCommentTotalLikes || 0) + (liked ? 1 : -1),
+        };
+      });
+
+      return { previousReplies, commentId };
     },
-    onError: (error: any) => {
+    onError: (error: any, _vars, context: any) => {
+      if (context?.previousReplies && context?.commentId) {
+        queryClient.setQueryData(["repliesByCommentId", context.commentId], context.previousReplies);
+      }
       console.error("Like toggle failed:", error);
       toast.error(error?.message || "Failed to toggle like");
+    },
+    onSuccess: (data: any, vars) => {
+      const apiLiked = data?.data?.liked;
+      if (vars.commentId) {
+        updateReplyInCache(queryClient, vars.commentId, vars.replyId, (r) => ({
+          ...r,
+          liked: apiLiked !== undefined ? apiLiked : r.liked,
+        }));
+      }
+
+      toast.success(data.message || "Like toggled successfully");
     },
   });
 };
