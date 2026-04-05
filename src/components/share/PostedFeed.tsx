@@ -12,7 +12,9 @@ import Image from "next/image";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import CommentModal from "./CommentModal";
+import CommentSection from "./CommentSection";
 import LikesModal from "./LikesModal";
+import PostSkeleton from "./PostSkeleton";
 
 dayjs.extend(relativeTime);
 
@@ -20,7 +22,7 @@ const PostedFeed = () => {
   const [expandedPosts, setExpandedPosts] = useState<Record<string, boolean>>(
     {},
   );
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useGetAllPost();
   const { data: session } = useSession();
   const token = session?.accessToken;
@@ -76,13 +78,12 @@ const PostedFeed = () => {
 
   const handleToggleLikesModal = async (postId: string) => {
     try {
+      setShowLikesModal(true);
       setLikesModalLoading(true);
       const res: any = await fetchLikes(postId);
 
       const list = res?.data || [];
       setLikesList(Array.isArray(list) ? list : []);
-
-      setShowLikesModal(true);
     } catch (error) {
       console.error("Error fetching likes:", error);
       toast.error("Failed to load likes");
@@ -90,6 +91,16 @@ const PostedFeed = () => {
       setLikesModalLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((n) => (
+          <PostSkeleton key={n} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -124,7 +135,6 @@ const PostedFeed = () => {
                 <MoreHorizontal className="w-5 h-5 cursor-pointer" />
               </button>
             </div>
-
             {/* Content & Images */}
             <div className="px-4 pb-3">
               <div className="text-[14px] text-gray-800 mb-4">
@@ -179,12 +189,11 @@ const PostedFeed = () => {
                 </div>
               )}
             </div>
-
             {/* Stats */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
               <div className="flex items-center -space-x-2">
                 <hr className="hover:flex border border-red-500" />
-                <button className="flex items-center justify-center gap-2 py-2.5 rounded-lg cursor-pointer ">
+                <button className="flex items-center justify-center gap-2 py-2.5 rounded-lg cursor-pointer">
                   <ThumbsUp className="w-5 h-5 text-blue-500" />
                   <span className="text-[14px] font-bold text-gray-700">
                     Like
@@ -209,7 +218,6 @@ const PostedFeed = () => {
                 likesList={likesList}
               />
             </div>
-
             {/* Actions */}
             <div className="grid grid-cols-3 gap-1 p-2 border-b border-gray-50">
               <button
@@ -237,14 +245,16 @@ const PostedFeed = () => {
                   Share
                 </span>
               </button>
+ 
+              <CommentModal
+                postId={activeCommentPostId}
+                show={Boolean(activeCommentPostId)}
+                onClose={() => setActiveCommentPostId(null)}
+              />
             </div>
 
             {/* Comment Section */}
-            <CommentModal
-              postId={activeCommentPostId}
-              show={Boolean(activeCommentPostId)}
-              onClose={() => setActiveCommentPostId(null)}
-            />
+            <CommentSection postId={post._id} session={session} />
           </div>
         );
       })}

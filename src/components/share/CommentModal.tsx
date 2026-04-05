@@ -10,8 +10,8 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
   if (!show || !postId) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md bg-white rounded-lg p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-modal-fade">
+      <div className="w-full max-w-md bg-white rounded-lg p-4 animate-modal-scale">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-bold">Comments</h3>
           <button
