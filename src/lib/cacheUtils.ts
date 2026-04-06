@@ -24,7 +24,7 @@ export const updateCommentInCache = (
   commentId: string,
   updateFn: (comment: Comment) => Comment
 ) => {
-  // Update in commentsByPostId query
+
   queryClient.setQueryData<InfiniteQueryData<Comment>>(
     ["commentsByPostId", postId],
     (oldData) => {
@@ -39,7 +39,7 @@ export const updateCommentInCache = (
     }
   );
 
-  // Update inline comments in allPosts query
+
   queryClient.setQueryData<InfiniteQueryData<Post>>(["allPosts"], (oldData) => {
     if (!oldData) return oldData;
     return {
@@ -81,7 +81,7 @@ export const insertCommentOptimistically = (
   postId: string,
   newComment: Comment
 ) => {
-  // Insert into allPosts inline
+
   queryClient.setQueryData<InfiniteQueryData<Post>>(["allPosts"], (oldData) => {
     if (!oldData) return oldData;
     return {
@@ -101,7 +101,7 @@ export const insertCommentOptimistically = (
     };
   });
 
-  // Insert into commentsByPostId
+
   queryClient.setQueryData<InfiniteQueryData<Comment>>(
     ["commentsByPostId", postId],
     (oldData) => {
@@ -132,7 +132,7 @@ export const insertReplyOptimistically = (
   postId: string,
   newReply: Reply
 ) => {
-  // Insert into replies
+
   queryClient.setQueryData<InfiniteQueryData<Reply>>(
     ["repliesByCommentId", commentId],
     (oldData) => {
@@ -146,7 +146,7 @@ export const insertReplyOptimistically = (
     }
   );
 
-  // Bump totalComments in post
+
   updatePostInCache(queryClient, postId, (post) => ({
     ...post,
     totalComments: (post.totalComments || 0) + 1,

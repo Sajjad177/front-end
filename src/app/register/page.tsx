@@ -26,7 +26,7 @@ const Register = () => {
     agree: "",
   });
 
-  // ✅ FIXED
+
   const registerMutation = useRegister();
   const router = useRouter();
 
@@ -263,10 +263,10 @@ const Register = () => {
             )}
 
             <button
-              type="button" // ✅ important fix
+              type="button" 
               onClick={handleRegister}
               disabled={isLoading}
-              className="w-full bg-[#007AFF] text-white py-3 rounded-md font-bold"
+              className="w-full bg-[#007AFF] text-white py-3 rounded-md cursor-pointer font-bold"
             >
               {isLoading ? "Registering..." : "Register now"}
             </button>
@@ -274,7 +274,7 @@ const Register = () => {
 
           <p className="text-center text-sm text-gray-500 mt-6">
             Already have an account?{" "}
-            <Link href="/login" className="text-[#007AFF] font-bold">
+            <Link href="/login" className="text-[#007AFF] font-bold cursor-pointer">
               Login now
             </Link>
           </p>

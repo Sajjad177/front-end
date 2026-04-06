@@ -28,7 +28,7 @@ const PostBox = () => {
   const [text, setText] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const postMutation = usePost(); // react-query mutation
+  const postMutation = usePost(); 
 
   const processFiles = (files: File[]) => {
     const imageFiles = files.filter((file) => file.type.startsWith("image/"));

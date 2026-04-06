@@ -55,7 +55,6 @@ export const authOptions: AuthOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
-      // First login
       if (user) {
         token.id = user.id;
         token.email = user.email;

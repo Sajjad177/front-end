@@ -62,7 +62,6 @@ const SidebarLeft = () => {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* --- Explore Section --- */}
       <div className="bg-white rounded-md p-4">
         <h3 className="font-bold text-lg px-2 mb-4 text-gray-800">Explore</h3>
         <div className="space-y-1">
@@ -86,7 +85,6 @@ const SidebarLeft = () => {
         </div>
       </div>
 
-      {/* --- Suggested People Section --- */}
       <div className="bg-white rounded-md p-4">
         <div className="flex justify-between items-center px-2 mb-6">
           <h3 className="font-bold text-lg text-gray-800">Suggested People</h3>
@@ -119,7 +117,7 @@ const SidebarLeft = () => {
         </div>
       </div>
 
-      {/* --- Events Section --- */}
+
 
       <div className="bg-white rounded-md p-4">
         <div className="flex justify-between items-center mb-6 px-1">
@@ -136,7 +134,7 @@ const SidebarLeft = () => {
               key={event.id}
               className="group cursor-pointer shadow-sm p-4 rounded-md hover:bg-gray-50 transition-all"
             >
-              {/* Event Image Component */}
+
               <div className="relative w-full h-[180px] rounded-2xl overflow-hidden mb-4 ">
                 <Image
                   src={event.image}
@@ -146,9 +144,8 @@ const SidebarLeft = () => {
                 />
               </div>
 
-              {/* Event Details Section */}
+
               <div className="flex gap-4 items-start mb-4">
-                {/* Date Box */}
                 <div className="bg-[#00D084] text-white min-w-[55px] h-[65px] rounded-md flex flex-col items-center justify-center shadow-lg shadow-green-100">
                   <span className="text-xl font-black leading-none">
                     {event.date.split(" ")[0]}
@@ -158,7 +155,7 @@ const SidebarLeft = () => {
                   </span>
                 </div>
 
-                {/* Description */}
+
                 <div className="flex-1">
                   <h4 className="font-bold text-gray-900 text-[16px]">
                     {event.description}
@@ -166,7 +163,6 @@ const SidebarLeft = () => {
                 </div>
               </div>
 
-              {/* Footer: People Going & Action Button */}
               <div className="flex justify-between items-center pt-3 border-t border-gray-50">
                 <span className="text-gray-400 text-sm font-medium">
                   {event.peopleGoing} People Going

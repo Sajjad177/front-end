@@ -33,8 +33,6 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
   
   const { mutate: commentPost } = useCommentPost();
   const [commentInput, setCommentInput] = useState("");
-  
-  // Pagination State
   const [visibleCommentsCount, setVisibleCommentsCount] = useState(5);
   const [visibleRepliesCount, setVisibleRepliesCount] = useState<Record<string, number>>({});
 
@@ -85,19 +83,19 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
           setVisibleCommentsCount(prev => prev + 5);
         });
       } else {
-        setVisibleCommentsCount(5); // View less
+        setVisibleCommentsCount(5);
       }
     } else {
-      setVisibleCommentsCount(prev => prev + 5); // Normal local "View more"
+      setVisibleCommentsCount(prev => prev + 5);
     }
   };
 
   const handleToggleReplies = (commentId: string, totalReplies: number) => {
     setVisibleRepliesCount(prev => {
       const current = prev[commentId] || 0;
-      if (current === 0) return { ...prev, [commentId]: 5 }; // View replies => show 5
-      if (current >= totalReplies) return { ...prev, [commentId]: 0 }; // View less => Hide all
-      return { ...prev, [commentId]: current + 5 }; // View more => show +5
+      if (current === 0) return { ...prev, [commentId]: 5 }; 
+      if (current >= totalReplies) return { ...prev, [commentId]: 0 }; 
+      return { ...prev, [commentId]: current + 5 }; 
     });
   };
 
@@ -253,7 +251,6 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
             </div>
           )}
 
-          {/* Bottom comments view more toggle */}
           {!isLoading && (sortedComments.length > 5 || hasNextPage) && displayedComments.length > 0 && !isAllShown && (
             <div className="mt-6 flex justify-center">
               <button
@@ -266,7 +263,6 @@ const CommentModal = ({ show, onClose, postId }: CommentModalProps) => {
           )}
         </div>
 
-        {/* Input Field below */}
         <div className="p-4 border-t bg-white rounded-b-xl">
           <div className="flex items-end gap-3">
             <Avatar className="h-8 w-8 shrink-0">

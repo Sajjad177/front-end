@@ -4,7 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-// import friends from "@/data/friends.json";
 import userImg from "../../../public/user/user-9.jpg";
 
 const friends = [
@@ -62,7 +61,7 @@ const SidebarRight = () => {
   return (
     <div className="flex flex-col gap-5 w-full max-w-[320px]">
       <div className="bg-white rounded-sm p-6  max-w-[350px]">
-        {/* --- Header Section --- */}
+
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold text-[22px] text-gray-900 tracking-tight">
             You Might Like
@@ -74,7 +73,6 @@ const SidebarRight = () => {
 
         <hr className="border-gray-100 mb-8" />
 
-        {/* --- Profile Info: Horizontal Layout --- */}
         <div className="flex items-center gap-4 mb-8">
           <Avatar className="h-16 w-16">
             <AvatarImage src={userImg.src} className="object-cover" />
@@ -90,7 +88,6 @@ const SidebarRight = () => {
           </div>
         </div>
 
-        {/* --- Action Buttons --- */}
         <div className="grid grid-cols-2 gap-4 w-full">
           <Button className="border-gray-100 text-gray-400 font-bold h-12 hover:bg-gray-50 transition-all text-[15px] bg-white cursor-pointer rounded-sm">
             Ignore

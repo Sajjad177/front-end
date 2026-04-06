@@ -211,7 +211,7 @@ const ReplySection = ({
         </span>
       </div>
 
-      {/* Reply Input */}
+
       {showReplyInput && (
         <div className="flex items-end gap-2 mt-2 ml-3">
           <Avatar className="h-6 w-6 shrink-0 mt-0.5">
@@ -250,7 +250,7 @@ const ReplySection = ({
         </div>
       )}
 
-      {/* Reply List */}
+
       <div className="mt-2 space-y-2 ml-6">
         {displayedReplies.map((reply: any) => (
           <div key={reply._id} className="flex gap-2.5 ml-6 mt-2 group">

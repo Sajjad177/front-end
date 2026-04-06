@@ -124,7 +124,7 @@ const CommentSection = ({
 
   return (
     <div className="p-4 space-y-4">
-      {/* Input Field */}
+
       <div className="flex items-end gap-3">
         <Avatar className="h-8 w-8 shrink-0">
           <AvatarImage src={session?.user?.image || "/images/my-avatar.jpg"} />
@@ -190,7 +190,6 @@ const CommentSection = ({
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              {/* Comment Bubble */}
               <div className="bg-slate-100 rounded-2xl px-3.5 py-2 inline-block max-w-[92%] relative border border-slate-200/50 mb-0.5">
                 <h5 className="text-[13px] font-semibold text-slate-800 leading-tight">
                   {comment.authorId?.firstName} {comment.authorId?.lastName}

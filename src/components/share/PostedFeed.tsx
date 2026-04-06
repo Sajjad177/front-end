@@ -133,7 +133,7 @@ const PostedFeed = () => {
               </div>
               <PostOptions />
             </div>
-            {/* Content & Images */}
+
             <div className="px-4 pb-3">
               <div className="text-[14px] text-gray-800 mb-4">
                 {post?.text && (
@@ -300,13 +300,11 @@ const PostedFeed = () => {
               />
             </div>
 
-            {/* Comment Section */}
             <CommentSection postId={post._id} session={session} />
           </div>
         );
       })}
 
-      {/* Main Load More Button */}
       {hasNextPage && (
         <div className="flex justify-center mt-6 mb-8 px-4">
           <button

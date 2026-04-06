@@ -62,7 +62,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 relative overflow-hidden bg-[#F3F5F7]">
-      {/* --- Full Background Image --- */}
+
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/background-1.avif"
@@ -190,7 +190,7 @@ const Login = () => {
             New here?{" "}
             <Link
               href="/register"
-              className="text-[#007AFF] font-extrabold hover:underline"
+              className="text-[#007AFF] font-extrabold hover:underline cursor-pointer"
             >
               Create Account
             </Link>
