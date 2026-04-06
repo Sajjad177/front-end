@@ -1,4 +1,4 @@
-# ConnectSphere - Social Feed Platform
+# Social Feed Platform
 
 ## Description
 A modern, responsive, and dynamic social media feed platform built with Next.js. This frontend application provides users with an intuitive interface to authenticate, view a personalized social feed, create posts with privacy settings, interact through comments and replies, and express reactions with likes. The UI is designed to be sleek and fast, delivering a premium user experience across all devices.
@@ -6,8 +6,8 @@ A modern, responsive, and dynamic social media feed platform built with Next.js.
 ## Tech Stack
 - **Framework:** Next.js 15 (App Router)
 - **Language:** TypeScript
-- **Styling:** Tailwind CSS v4, tw-animate-css
-- **UI Components:** Shadcn UI, Radix UI Primitives, Lucide React Icons
+- **Styling:** Tailwind CSS.
+- **UI Components:** Shadcn UI, Lucide React Icons
 - **Data Fetching & State:** TanStack React Query, Axios
 - **Authentication:** NextAuth.js
 - **Form Management & Validation:** Zod
@@ -19,7 +19,7 @@ A modern, responsive, and dynamic social media feed platform built with Next.js.
 - **Post Creation:** Users can create posts and manage their visibility (Public / Private).
 - **Interactive Comments System:** Multi-level comment sections including threaded replies.
 - **Reactions (Likes):** Users can like posts, comments, and specific replies. Includes interactive "Likes Modals" to see who reacted.
-- **Responsive Navigation:** Sidebar integrations and interactive "Stories" layout optimized for both mobile and desktop views.
+- **Responsive Navigation:** Sidebar integrations and interactive layout optimized for both mobile and desktop views.
 - **Optimistic UI Updates:** Fast and seamless state updates, smooth modal animations, and skeleton loaders for exceptional user experience.
 
 ## Installation Instructions
@@ -35,10 +35,9 @@ To get this project up and running locally, follow these steps:
    ```bash
    npm install
    ```
-   *Note: Make sure you are using Node.js v20+ as referenced in package type definitions.*
 
 3. **Set up Environment Variables:**
-   Create a `.env` or `.env.local` file in the root directory and configure necessary environment variables (see Notes section).
+   Create a `.env.local` file in the root directory and configure necessary environment variables.
 
 4. **Run the development server:**
    ```bash
@@ -52,8 +51,8 @@ To get this project up and running locally, follow these steps:
 - **Sign Up / Log In:** Start by creating a new account on the `/register` page or logging in via `/login`.
 - **Browsing the Feed:** Navigate to the home page `/` to explore public posts and your tailored feed.
 - **Creating a Post:** Use the "Create Post" interface to write content, set the audience to "Private" or "Public", and publish.
-- **Engaging:** Click on the comment icon to open the comment modal, read existing discussions, leave a main comment, or reply to others directly.
-- **Liking:** Click the heart icon on any post or comment to like it. Click the likes count to view a modal showing who reacted.
+- **Engaging:** Click on the comment to open the comment modal, read existing discussions, leave a main comment, or reply to others directly.
+- **Liking:** Click the like on any post or comment to like it. Click the likes count to view a modal showing who reacted.
 
 ## Folder Structure
 A brief overview of the main directories in the `src/` folder:
@@ -80,7 +79,6 @@ src/
   NEXTAUTH_URL=http://localhost:3000
   NEXTAUTH_SECRET=your_super_secret_string
   ```
-- **Linting & Code Quality:** Run `npm run lint` to enforce ESLint rules according to Next.js patterns.
 
 ## Author
 Sajjad
